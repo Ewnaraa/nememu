@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node scripts/watch.mjs",
     "build": "node scripts/build.mjs",
-    "dist": "npm run build && electron-builder && npm run share",
+    "dist": "npm run build && electron-builder --publish never && npm run share",
     "release": "npm run build && electron-builder --publish always && npm run share",
     "tag": "node scripts/tag-release.mjs",
     "typecheck": "tsc --noEmit",

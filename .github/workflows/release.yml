@@ -94,10 +94,13 @@ jobs:
           foreach ($f in $files) {
             if (-not (Test-Path $f)) { throw "Missing $f" }
           }
+          # $files, not @files: both splat into a native command, but only one
+          # of them is unambiguous in argument mode. Verified rather than
+          # assumed — this whole step gets exactly one attempt per tag.
           gh release create "${{ github.ref_name }}" `
             --title "Nememu $pkg" `
             --notes-file release/NOTES.md `
-            @files
+            $files
 
       # Kept so a published release can be re-checked against exactly what the
       # runner produced, without rebuilding and getting different bytes.
