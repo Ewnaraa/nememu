@@ -20,9 +20,46 @@ function setup() {
   }
 
   console.log('Downloading fresh script.js...')
-  execSync(`curl -s "https://dt-proxy-production-login.ankama-games.com/build/script.js" -o "${path.join(tmpDir, 'build/script.js')}"`, { timeout: 30000 })
-  execSync(`curl -s "https://dt-proxy-production-login.ankama-games.com/build/styles-native.css" -o "${path.join(tmpDir, 'build/styles-native.css')}"`, { timeout: 30000 })
+  fetchGameFile('build/script.js')
+  fetchGameFile('build/styles-native.css')
+  assertLooksLikeTheGame()
   console.log('Downloaded.')
+}
+
+const BASE = 'https://dt-proxy-production-login.ankama-games.com'
+
+/**
+ * `-f` is the whole point.
+ *
+ * Without it curl writes an HTTP error page to the output file and exits 0, so
+ * this printed "Downloaded." and then handed an HTML document to every check
+ * below. On a GitHub runner that produced `0/10 patches applied`, `Unexpected
+ * token '<'` and 63 failures naming every game symbol at once — which reads as
+ * "Ankama rewrote the entire client", the single most alarming thing this file
+ * can say. It had simply not been given the file.
+ */
+function fetchGameFile(name) {
+  execSync(
+    `curl -fsS --retry 2 --max-time 60 "${BASE}/${name}" -o "${path.join(tmpDir, name)}"`,
+    { timeout: 90000, stdio: ['ignore', 'ignore', 'pipe'] }
+  )
+}
+
+/**
+ * A second check, because a 200 is not proof of the right body: a captive
+ * portal, a geo-block or a CDN challenge all answer 200 with HTML.
+ */
+function assertLooksLikeTheGame() {
+  const file = path.join(tmpDir, 'build/script.js')
+  const size = fs.statSync(file).size
+  const head = fs.readFileSync(file, 'utf-8').slice(0, 400).trimStart()
+
+  if (head.startsWith('<')) {
+    throw new Error(`served HTML instead of the game bundle (${size} bytes, starts with "${head.slice(0, 60)}")`)
+  }
+  if (size < 1_000_000) {
+    throw new Error(`the bundle is only ${size} bytes — too small to be script.js`)
+  }
 }
 
 function applyRegexPatches() {
@@ -303,6 +340,36 @@ function runTests() {
   process.exit(failed > 0 ? 1 : 0)
 }
 
-setup()
+/*
+ * Not getting the game and the game having changed are different answers.
+ *
+ * Everything below setup() compares our patches against Ankama's live bundle.
+ * If the bundle cannot be fetched, the honest result is "unknown" — but this
+ * file used to report it as "every single symbol is missing", which is what a
+ * total rewrite of Dofus Touch would look like. Loudest possible alarm, for a
+ * download that failed.
+ *
+ * So a fetch failure is a skip, not a failure. It must not block a release on
+ * whether a third party's CDN felt like answering a datacenter IP — the check
+ * still runs, and still fails properly, wherever the file can actually be
+ * fetched. What it must never be is quiet: it is warned about here, and
+ * annotated on the run page under GitHub Actions.
+ */
+try {
+  setup()
+} catch (err) {
+  const why = (err.stderr?.toString() || err.message || '').trim().split('\n')[0]
+  const message =
+    `Could not fetch the live game bundle, so the patches were NOT verified against it: ${why}`
+
+  if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Game patches unverified::${message}`)
+  console.warn(`\n  /!\\ ${message}`)
+  console.warn('      This is "unknown", not "broken". Run the suite again from a machine')
+  console.warn('      that can reach Ankama before trusting a release built here.\n')
+
+  fs.rmSync(tmpDir, { recursive: true, force: true })
+  process.exit(0)
+}
+
 runTests()
 fs.rmSync(tmpDir, { recursive: true, force: true })
