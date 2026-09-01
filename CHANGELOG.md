@@ -11,6 +11,17 @@ Chaque entrée est écrite pour quelqu'un qui joue, pas pour quelqu'un qui lit l
 code : ce qui change à l'écran, et ce qu'il faut faire s'il y a quelque chose à
 faire.
 
+## 0.2.1
+
+### Corrigé
+
+- **Le journal ne disait pas si la recherche de mise à jour avait eu lieu.**
+  Seuls les échecs y laissaient une trace : une vérification qui aboutissait
+  n'écrivait rien du tout. Impossible, à la lecture, de distinguer une
+  vérification qui a tourné et n'a rien trouvé d'une vérification qui n'est
+  jamais partie — c'est-à-dire impossible de répondre à « le bouton de mise à
+  jour ne fait rien ». Les deux issues sont maintenant journalisées.
+
 ## 0.2.0
 
 Première version sous le nom **Nememu**.

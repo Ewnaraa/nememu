@@ -52,7 +52,14 @@ export class AppUpdater {
       this._setStatus({ phase: 'checking', message: 'Checking for app update...' })
     })
 
+    // Both outcomes are logged, not just the failures.
+    //
+    // Until now a check that worked left no trace at all, so "the update button
+    // does nothing" was unanswerable from a player's log: it could not tell a
+    // check that ran and found nothing from a check that never fired. Silence
+    // is not evidence, and this is the one file a player is asked to send back.
     autoUpdater.on('update-available', (info) => {
+      logger.info(`Update check: ${info.version} is available (running ${app.getVersion()}).`)
       this._setStatus({
         phase: 'available',
         version: info.version,
@@ -62,6 +69,11 @@ export class AppUpdater {
     })
 
     autoUpdater.on('update-not-available', (info) => {
+      // Both numbers, because they are not always equal: this branch also fires
+      // on a dev or pre-release build that is ahead of anything published, and
+      // "already on the latest release (0.2.0)" while running 0.2.1 reads like
+      // the check got it wrong.
+      logger.info(`Update check: nothing newer than ${app.getVersion()} (latest published: ${info.version}).`)
       this._setStatus({
         phase: 'not-available',
         version: info.version,
