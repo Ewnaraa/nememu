@@ -227,4 +227,8 @@ Notes for anyone auditing or forking this:
 
 ## License
 
-GPL-3.0
+GPL-3.0 — see [LICENSE](LICENSE).
+
+Forked from [angine67/DofuEmu](https://github.com/angine67/DofuEmu), which is
+GPL-3.0 too; the licence travels with the fork, which is why the full text is in
+the repository rather than only named here.
