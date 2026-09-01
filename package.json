@@ -1,0 +1,100 @@
+{
+  "name": "nememu",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Dofus Touch desktop client",
+  "main": "dist/main/index.cjs",
+  "packageManager": "pnpm@10.11.0",
+  "scripts": {
+    "dev": "node scripts/watch.mjs",
+    "build": "node scripts/build.mjs",
+    "dist": "npm run build && electron-builder && npm run share",
+    "release": "npm run build && electron-builder --publish always && npm run share",
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/game-patches.test.mjs && node tests/hotkeys.test.mjs && node tests/notifications.test.mjs && node tests/i18n.test.mjs",
+    "share": "node scripts/make-share-zip.mjs"
+  },
+  "build": {
+    "appId": "com.nememu.app",
+    "productName": "Nememu",
+    "icon": "resources/icon.png",
+    "publish": {
+      "provider": "github",
+      "owner": "Ewnaraa",
+      "repo": "nememu"
+    },
+    "mac": {
+      "icon": "resources/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.games",
+      "protocols": [
+        {
+          "name": "Nememu Auth",
+          "schemes": [
+            "dofustouch",
+            "touch",
+            "com.ankama.dofustouch"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": "nsis"
+    },
+    "nsis": {
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "linux": {
+      "icon": "resources/icon.png",
+      "target": "AppImage"
+    },
+    "files": [
+      "dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    }
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.8.3",
+    "get-port": "^5.1.1",
+    "hono": "^4.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.6.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "esbuild": "^0.28.2",
+    "lucide-react": "^0.577.0",
+    "postcss": "^8.5.8",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.13.0",
+    "tailwindcss": "^4.2.1",
+    "typescript": "~5.8.0",
+    "vite": "^6.0.0",
+    "zustand": "^5.0.12"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <linearGradient id="gold" x1="0.15" y1="0" x2="0.85" y2="1">
+    <stop offset="0" stop-color="#f9e7b2"/><stop offset="0.33" stop-color="#dcb864"/>
+    <stop offset="0.65" stop-color="#c49a45"/><stop offset="1" stop-color="#8c6b2a"/>
+  </linearGradient>
+  <linearGradient id="tile" x1="0.1" y1="0" x2="0.9" y2="1">
+    <stop offset="0" stop-color="#232432"/><stop offset="0.6" stop-color="#14151e"/><stop offset="1" stop-color="#0b0c12"/>
+  </linearGradient>
+  <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.14"/>
+    <stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="eggLight" cx="0.34" cy="0.24" r="0.75">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+</defs><rect x="30" y="30" width="964" height="964" rx="226" fill="url(#tile)"/><rect x="30" y="30" width="964" height="964" rx="226" fill="url(#sheen)"/><path d="M512,101.0 C668.04,101.0 844.0,405.56 844.0,650.9 C844.0,815.87 694.6,947.0 512,947.0 C329.4,947.0 180.0,815.87 180.0,650.9 C180.0,405.56 355.96000000000004,101.0 512,101.0 Z" fill="url(#gold)"/><path d="M512,101.0 C668.04,101.0 844.0,405.56 844.0,650.9 C844.0,815.87 694.6,947.0 512,947.0 C329.4,947.0 180.0,815.87 180.0,650.9 C180.0,405.56 355.96000000000004,101.0 512,101.0 Z" fill="url(#eggLight)"/><path d="M512,101.0 C668.04,101.0 844.0,405.56 844.0,650.9 C844.0,815.87 694.6,947.0 512,947.0 C329.4,947.0 180.0,815.87 180.0,650.9 C180.0,405.56 355.96000000000004,101.0 512,101.0 Z" fill="none" stroke="rgba(88,64,18,0.42)" stroke-width="10"/><path d="M348,350 L438,350 L690,782 L600,782 Z M336,782 L348,350 L438,350 L426,782 Z M600,782 L612,350 L702,350 L690,782 Z" fill="#14151e"/><rect x="30" y="30" width="964" height="964" rx="226" fill="none" stroke="rgba(212,175,90,0.30)" stroke-width="12"/></svg>

@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+  <head>
+    <script>
+      // Touch fix
+      window.ontouchstart = function(e) {};
+
+      // Init
+      window.buildVersion = window.top.buildVersion;
+      window.appVersion = window.top.appVersion;
+      window.appInfo = {
+        version: window.top.appVersion
+      };
+
+      window._ = {
+        appVersion: window.appVersion,
+        buildVersion: window.buildVersion,
+        client: "android"
+      };
+
+      // The game keeps its data cache in IndexedDB, and on startup it drops the
+      // `frDataCache` database to clear unused assets — while still holding a
+      // connection open. The delete is then blocked forever and the "checking
+      // cached assets" screen waits on a completion that never comes.
+      //
+      // Removing IndexedDB altogether is not an option: the game falls back to
+      // WebSQL, which Chromium no longer implements. So IndexedDB stays, and
+      // only the deletion is made non-blocking — the request reports success
+      // immediately while the real delete proceeds in the background and
+      // finishes on its own once the game closes its connection.
+      //
+      // (Note: the old `window.indexedDB = {}` here never had any effect —
+      // `indexedDB` is a getter-only attribute, so the assignment failed
+      // silently.)
+      (function () {
+        var factory = window.indexedDB;
+        if (!factory || typeof factory.deleteDatabase !== "function") return;
+
+        var nativeDeleteDatabase = factory.deleteDatabase.bind(factory);
+
+        factory.deleteDatabase = function (name) {
+          var request = {
+            onsuccess: null,
+            onerror: null,
+            onblocked: null,
+            onupgradeneeded: null,
+            readyState: "pending",
+            result: undefined,
+            error: null
+          };
+
+          try {
+            var real = nativeDeleteDatabase(name);
+            real.onblocked = function () {};
+            real.onerror = function () {};
+          } catch (e) {}
+
+          setTimeout(function () {
+            request.readyState = "done";
+            if (typeof request.onsuccess === "function") {
+              request.onsuccess({ type: "success", target: request });
+            }
+          }, 0);
+
+          return request;
+        };
+      })();
+
+      var _deepLinkCallbacks = [];
+
+      window.IonicDeeplink = {
+        onDeepLink: function(cb) {
+          _deepLinkCallbacks.push(cb);
+        }
+      };
+
+      window.cordova = {
+        InAppBrowser: {
+          open: function(url, target) {
+            window.open(url, "_system");
+            return null;
+          }
+        },
+        plugins: {
+          browsertab: {
+            isAvailable: function(cb) {
+              cb(true);
+            },
+            openUrl: function(url, success, error) {
+              window.open(url, "_system");
+              if (success) success();
+            },
+            close: function() {}
+          },
+          isemulator: {
+            assess: function(fct) {
+              fct(false);
+            }
+          },
+          Keyboard: {
+            close: function() {},
+            disableScroll: function() {},
+            show: function() {},
+            hideKeyboardAccessoryBar: function() {}
+          },
+          notification: {
+            local: false
+          },
+          pushNotification: {
+            onDeviceReady: function() {},
+            setUserId: function() {},
+            registerDevice: function() {}
+          }
+        }
+      };
+
+      window.$appSchemeLinkCalled = function(payload) {
+        if (!payload) return;
+        var qs = payload.indexOf("?") !== -1 ? payload.split("?")[1] : payload;
+        for (var i = 0; i < _deepLinkCallbacks.length; i++) {
+          _deepLinkCallbacks[i]({ queryString: qs });
+        }
+      };
+
+      if (window.top.platform == "darwin") {
+        (function() {
+          window.requestAnimationFrame = function(callback) {
+            var self = requestAnimationFrame;
+            self.queue.push(callback);
+            if (!self.timeout) {
+              self.timeout = setTimeout(function() {
+                var queue = self.queue;
+                self.queue = [];
+                self.timeout = null;
+                queue.forEach(function(q) {
+                  q();
+                });
+              }, 16);
+            }
+          };
+          requestAnimationFrame.queue = [];
+          requestAnimationFrame.timeout = null;
+        })();
+      }
+
+      window.initDofus = function(cb) {
+        var head = document.getElementsByTagName("head")[0];
+
+        var scriptScript = document.createElement("script");
+        scriptScript.addEventListener("load", function() {
+          var fixesScript = document.createElement("script");
+          fixesScript.src = "fixes.js";
+          head.appendChild(fixesScript);
+          cb();
+        });
+        scriptScript.src = "build/script.js";
+        head.appendChild(scriptScript);
+      };
+    </script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="build/styles-native.css" />
+    <link rel="stylesheet" href="fixes.css" />
+  </head>
+  <body>
+  </body>
+  <script src="keymaster2.js"></script>
+</html>

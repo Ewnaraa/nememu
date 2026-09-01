@@ -1,0 +1,135 @@
+Nememu {{VERSION}} - client de bureau non officiel pour Dofus Touch
+=============================================================
+
+CE QUE C'EST
+------------
+Dofus Touch est concu pour le tactile : pas de raccourci clavier, une fenetre
+qu'on ne redimensionne pas, un seul compte a la fois. Nememu lance le VRAI jeu,
+avec ton VRAI compte Ankama, dans une fenetre de bureau qui ajoute ce qui
+manque :
+
+  - des raccourcis clavier pour les sorts, "pret", la fin de tour, l'inventaire,
+    le grimoire, la carte... (le jeu n'en a aucun)
+  - les touches 1 a 8 pour les sorts, qui marchent directement en AZERTY
+  - les fleches directionnelles pour changer de carte
+  - Entree pour ouvrir le chat, Echap pour le fermer
+  - jusqu'a 5 comptes en onglets
+  - fenetre redimensionnable, plein ecran, zoom memorise
+  - plus de code par mail a chaque lancement une fois le compte enregistre
+  - des alertes quand quelque chose arrive pendant que tu es ailleurs : c'est
+    ton tour, message prive, agression, percepteur attaque, deconnexion
+  - la mise en veille de l'ecran bloquee tant que tu es connecte
+  - un compteur de FPS optionnel (engrenage > Jeu)
+  - interface en francais
+
+Ce n'est PAS un bot. Rien ne joue a ta place : selectionner un sort le
+selectionne, viser et valider restent a toi.
+
+
+INSTALLATION
+------------
+1. Lance "{{INSTALLER}}".
+
+2. Windows va afficher un ecran bleu "Windows a protege votre ordinateur".
+   C'est NORMAL et ca arrivera a tout le monde : le programme n'est pas signe
+   avec un certificat d'editeur (ca coute plusieurs centaines d'euros par an).
+   Windows ne dit pas que le fichier est dangereux, il dit qu'il ne connait pas
+   celui qui l'a fabrique.
+
+   Clique sur "Informations complementaires", puis "Executer quand meme".
+
+3. L'installation se fait toute seule et l'app se lance.
+
+Si tu preferes verifier avant d'ouvrir : voir "VERIFIER LE FICHIER" plus bas.
+
+
+PREMIER LANCEMENT
+-----------------
+- La liste des raccourcis s'affiche automatiquement. Prends 30 secondes pour la
+  parcourir : c'est tout l'interet du client. Tu peux la rouvrir n'importe quand
+  avec l'icone clavier en haut a droite, a cote de l'engrenage.
+
+- Connecte-toi avec ton compte Ankama habituel. Ankama t'enverra un code par
+  mail cette premiere fois.
+
+- Ensuite, va dans l'engrenage > Comptes et enregistre ton compte. Les
+  identifiants sont chiffres par Windows (DPAPI), ils ne quittent pas ta
+  machine. A partir de la, plus de code par mail.
+
+- Tous les raccourcis sont modifiables : engrenage > Raccourcis.
+
+- Les fleches font marcher ton perso jusqu'au bord de la carte puis changent de
+  carte, exactement comme un swipe. Rien n'est teleporte, et une fleche vers un
+  bord sans sortie ne fait rien.
+
+- L'interface est en francais par defaut ; l'anglais est dispo dans
+  engrenage > General.
+
+
+CE QU'IL FAUT SAVOIR
+--------------------
+- Client tiers non officiel. Ankama ne le supporte pas et ne le connait pas.
+  Tu l'utilises a tes risques, comme n'importe quel client alternatif.
+
+- L'application TE SIGNALE les nouvelles versions mais NE SE MET JAMAIS A JOUR
+  TOUTE SEULE : rien n'est telecharge ni installe sans que tu cliques. C'est
+  volontaire, et ca vaut d'etre dit : une appli qui se remplace toute seule peut
+  se remplacer par n'importe quoi. Les versions viennent d'un seul endroit,
+  github.com/Ewnaraa/nememu, et de nulle part ailleurs.
+
+- Le jeu lui-meme, en revanche, se met a jour normalement au demarrage : Nememu
+  telecharge les fichiers de jeu chez Ankama a chaque lancement.
+
+- Le client ne parle qu'a quatre endroits, et nulle part ailleurs : les serveurs
+  Ankama, l'App Store d'Apple (pour lire le numero de version publie du jeu),
+  GitHub (pour savoir s'il existe une nouvelle version de Nememu), et ton propre
+  PC. Aucun identifiant n'est envoye ailleurs qu'a Ankama.
+
+
+VERIFIER LE FICHIER
+-------------------
+Empreinte SHA256 de "{{INSTALLER}}" :
+
+  {{SHA256}}
+
+Taille : {{SIZE}} octets
+
+Pour la verifier, ouvre PowerShell dans le dossier ou est l'installeur et tape :
+
+  Get-FileHash ".\{{INSTALLER}}" -Algorithm SHA256
+
+Si l'empreinte affichee est identique a celle ci-dessus, le fichier est bien
+celui qui a ete compile ici, intact. Si elle differe, ne l'installe pas et
+previens-moi.
+
+
+SI CA NE MARCHE PAS
+-------------------
+En cas d'echec au demarrage, l'app explique ce qui s'est passe et quoi faire
+(pas de connexion, disque plein, fichier bloque par un antivirus...). Le detail
+technique est affiche dessous, en petit : c'est celui-la qu'il faut me copier si
+tu me demandes de l'aide.
+
+Elle ecrit aussi un journal complet :
+
+  Windows + R, puis colle :   %APPDATA%\nememu
+
+  - nememu.log     le lancement en cours
+  - nememu.log.1   le lancement precedent (souvent le plus utile : si tu as
+                   relance pour reessayer, l'erreur est dans celui-la)
+
+Si le port 27615 est deja pris sur ta machine, un bandeau te le dit au
+lancement : le jeu repart alors d'une adresse differente a chaque fois et Ankama
+redemande un code par mail a chaque lancement. Ferme le programme qui occupe ce
+port et relance Nememu ; si tu ne trouves pas lequel c'est, previens-moi.
+
+Un onglet qui passe en grise avec un point rouge veut dire que la connexion au
+serveur a saute. Recharge l'onglet (bouton rond a droite de son nom, ou Ctrl+R)
+pour te reconnecter.
+
+
+DESINSTALLER
+------------
+Parametres Windows > Applications > Nememu > Desinstaller.
+Pour effacer aussi les comptes enregistres et les reglages, supprime le dossier
+%APPDATA%\nememu.

@@ -1,0 +1,17 @@
+node_modules
+dist
+release
+.env
+*.tsbuildinfo
+
+# Logs. dev-run.log in particular contains whatever the client printed while
+# running against a real account — including an encrypted Ankama certificate
+# blob. Nothing here belongs in a public repository.
+*.log
+
+# The test harness downloads the live game bundle here (several MB, refreshed
+# on every run).
+tests/.tmp/
+
+# Dropped in by the NVIDIA driver, not part of the project.
+NVIDIA Corporation/

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+  <linearGradient id="gold" x1="0.15" y1="0" x2="0.85" y2="1">
+    <stop offset="0" stop-color="#f9e7b2"/><stop offset="0.33" stop-color="#dcb864"/>
+    <stop offset="0.65" stop-color="#c49a45"/><stop offset="1" stop-color="#8c6b2a"/>
+  </linearGradient>
+  <linearGradient id="tile" x1="0.1" y1="0" x2="0.9" y2="1">
+    <stop offset="0" stop-color="#232432"/><stop offset="0.6" stop-color="#14151e"/><stop offset="1" stop-color="#0b0c12"/>
+  </linearGradient>
+  <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.14"/>
+    <stop offset="0.45" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="eggLight" cx="0.34" cy="0.24" r="0.75">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.28"/>
+    <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+</defs><path d="M512,30.0 C716.92,30.0 948.0,382.8 948.0,667.0 C948.0,858.1 751.8,1010.0 512,1010.0 C272.2,1010.0 76.0,858.1 76.0,667.0 C76.0,382.8 307.08000000000004,30.0 512,30.0 Z" fill="url(#gold)"/><path d="M512,30.0 C716.92,30.0 948.0,382.8 948.0,667.0 C948.0,858.1 751.8,1010.0 512,1010.0 C272.2,1010.0 76.0,858.1 76.0,667.0 C76.0,382.8 307.08000000000004,30.0 512,30.0 Z" fill="none" stroke="rgba(88,64,18,0.5)" stroke-width="16"/><path d="M290,280 L416,280 L740,790 L614,790 Z M290,790 L290,280 L416,280 L416,790 Z M614,790 L614,280 L740,280 L740,790 Z" fill="#14151e"/></svg>
