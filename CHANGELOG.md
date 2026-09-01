@@ -8,6 +8,19 @@ l'écran, pas pourquoi c'était cassé. Le « pourquoi » vit dans les commits ;
 on écrit pour quelqu'un qui veut juste savoir s'il doit mettre à jour. Ce
 fichier est affiché tel quel dans le launcher : ce qui est long n'y est pas lu.
 
+## 0.3.2
+
+### Changé
+
+- Le launcher bouge : le fond dérive doucement, le contenu se met en place à
+  l'ouverture, et le bouton Jouer respire quand il devient cliquable.
+- Un reflet traverse la barre de progression, pour distinguer une étape lente
+  d'une application figée.
+- Ces animations s'arrêtent si tu as désactivé « Afficher les animations dans
+  Windows ».
+- Ce journal est plus court : une ligne par changement.
+- La police est fixée sur Segoe UI, identique sur Windows 10 et 11.
+
 ## 0.3.1
 
 À installer si tu es en 0.3.0.

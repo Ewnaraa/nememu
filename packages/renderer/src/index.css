@@ -23,15 +23,20 @@
   --color-border: hsl(240 5% 18%);
   --color-input: hsl(240 5% 13%);
   /*
-   * The system font, not a wish list.
+   * Segoe UI, named rather than implied.
    *
    * The stack used to open with "IBM Plex Sans" and "SF Pro Display" — faces
-   * that ship with nothing. On a machine that happens to have one installed
-   * the whole client looked different from everyone else's, which for an app
-   * handed around between friends means bug reports about a layout nobody else
-   * can reproduce. Leading with system-ui gives Segoe UI on Windows, San
-   * Francisco on macOS, and whatever the desktop actually uses on Linux: the
-   * font every one of these machines already has.
+   * that ship with nothing — so a machine that happened to have one installed
+   * rendered the whole client differently from everyone else's. For an app
+   * handed around between friends that means bug reports nobody else can
+   * reproduce.
+   *
+   * `system-ui` fixed that but introduced a smaller version of the same
+   * problem: on Windows 11 Chromium resolves it to "Segoe UI Variable Text",
+   * a different face from the "Segoe UI" of Windows 10. Two friends on two
+   * Windows versions would not be looking at the same typography. Naming Segoe
+   * UI first settles it; system-ui stays behind it so macOS and Linux still get
+   * something native rather than Arial.
    *
    * The monospace stack matters for the same reason and for one more: the bare
    * `monospace` keyword, which several components asked for by hand, resolves
@@ -39,7 +44,7 @@
    * on any current Windows — is what keeps a version number or a key cap from
    * rendering as a typewriter.
    */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, "Liberation Mono", monospace;
   --radius-sm: 0.125rem;
   --radius-md: 0.25rem;
