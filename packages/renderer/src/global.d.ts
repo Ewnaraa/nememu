@@ -63,6 +63,12 @@ declare global {
    */
   const __APP_VERSION__: string
 
+  /**
+   * The CHANGELOG.md section for this version, verbatim, injected by Vite.
+   * Empty when the file has no section matching the version.
+   */
+  const __APP_CHANGELOG__: string
+
   interface Window {
     nememu: NememuAPI
     buildVersion: string

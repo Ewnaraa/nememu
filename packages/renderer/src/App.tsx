@@ -1,7 +1,7 @@
 import { useEffect, useState, createContext, useContext } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { X } from 'lucide-react'
-import { SetupScreen } from '@/screens/SetupScreen'
+import { LauncherScreen } from '@/screens/LauncherScreen'
 import { GameScreen } from '@/screens/GameScreen'
 import { SettingsScreen } from '@/screens/SettingsScreen'
 import { colors } from '@/theme'
@@ -68,8 +68,8 @@ export function App() {
       <HashRouter>
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', overflow: 'hidden' }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/updater" replace />} />
-            <Route path="/updater" element={<SetupScreen />} />
+            <Route path="/" element={<Navigate to="/launcher" replace />} />
+            <Route path="/launcher" element={<LauncherScreen />} />
             <Route path="/game" element={<GameScreen />} />
           </Routes>
           <SettingsOverlay />

@@ -18,7 +18,7 @@ import {
 } from '@nememu/shared'
 import { get } from './constants'
 import { GameWindow, type WindowBounds } from './windows/game-window'
-import { UpdaterWindow } from './windows/updater-window'
+import { LauncherWindow } from './windows/launcher-window'
 import { AppUpdater, GameUpdater } from './updater'
 import { AccountVault } from './accounts'
 import { decryptSecret, encryptSecret } from './secure'
@@ -157,7 +157,7 @@ type StoredSettings = Record<string, unknown>
 export class Application {
   private static _instance: Application | null = null
   private _gameWindow: GameWindow | null = null
-  private _updaterWindow: UpdaterWindow | null = null
+  private _launcherWindow: LauncherWindow | null = null
   private _appUpdater: AppUpdater | null = null
   private readonly _server: Server
   private readonly _hash: string
@@ -256,9 +256,9 @@ export class Application {
   }
 
   ensureWindow() {
-    if (this._updaterWindow) {
-      if (this._updaterWindow.isMinimized()) this._updaterWindow.restore()
-      this._updaterWindow.focus()
+    if (this._launcherWindow) {
+      if (this._launcherWindow.isMinimized()) this._launcherWindow.restore()
+      this._launcherWindow.focus()
       return
     }
 
@@ -269,7 +269,7 @@ export class Application {
     }
 
     if (this._startupComplete) this._createGameWindow()
-    else this._createUpdaterWindow()
+    else this._createLauncherWindow()
   }
 
   setBuildVersion(v: string) { this._buildVersion = v }
@@ -396,20 +396,20 @@ export class Application {
 
     this._gameWindow.on('closed', () => {
       this._gameWindow = null
-      if (!this._updaterWindow) app.quit()
+      if (!this._launcherWindow) app.quit()
     })
   }
 
-  private _createUpdaterWindow() {
-    this._updaterWindow = new UpdaterWindow({ url: this._getRendererUrl('/updater') })
+  private _createLauncherWindow() {
+    this._launcherWindow = new LauncherWindow({ url: this._getRendererUrl('/launcher') })
 
-    this._updaterWindow.on('closed', () => {
-      this._updaterWindow = null
+    this._launcherWindow.on('closed', () => {
+      this._launcherWindow = null
       if (!this._gameWindow) app.quit()
     })
   }
 
-  private _getRendererUrl(route: '/game' | '/updater') {
+  private _getRendererUrl(route: '/game' | '/launcher') {
     const devServer = process.env['VITE_DEV_SERVER_HOST'] && process.env['VITE_DEV_SERVER_PORT']
     return devServer
       ? `http://${process.env['VITE_DEV_SERVER_HOST']}:${process.env['VITE_DEV_SERVER_PORT']}#${route}`
@@ -425,10 +425,10 @@ export class Application {
       this._gameWindow.focus()
     }
 
-    if (this._updaterWindow) {
-      const updaterWindow = this._updaterWindow
-      this._updaterWindow = null
-      updaterWindow.close()
+    if (this._launcherWindow) {
+      const launcherWindow = this._launcherWindow
+      this._launcherWindow = null
+      launcherWindow.close()
     }
   }
 

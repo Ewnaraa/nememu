@@ -18,6 +18,7 @@ interface SettingsState {
   game: GameSettings
   version: string
   shortcutsSeen: boolean
+  autoPlay: boolean
   isLoading: boolean
   isHydrated: boolean
 
@@ -36,6 +37,7 @@ interface SettingsState {
   toggleNotifications: () => void
   toggleFpsCounter: () => void
   markShortcutsSeen: () => void
+  setAutoPlay: (value: boolean) => void
 }
 
 /**
@@ -88,7 +90,11 @@ const defaultState = {
   },
   version: '0.1.0',
   // La feuille de raccourcis s'ouvre une fois, au tout premier lancement.
-  shortcutsSeen: false
+  shortcutsSeen: false,
+  // Le launcher attend un clic par défaut. C'est tout son intérêt : sans ça il
+  // n'est qu'un écran de chargement qui passe trop vite pour être lu. Ceux que
+  // le clic agace le désactivent depuis le launcher lui-même.
+  autoPlay: false
 }
 
 /**
@@ -127,7 +133,8 @@ function persist(state: SettingsState) {
       proxy: state.proxy,
       game: state.game,
       version: state.version,
-      shortcutsSeen: state.shortcutsSeen
+      shortcutsSeen: state.shortcutsSeen,
+      autoPlay: state.autoPlay
     })
     window.nememu.setSettings(payload)
   } catch {}
@@ -160,6 +167,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
           game: { ...defaultState.game, ...parsed.game },
           version: parsed.version ?? defaultState.version,
           shortcutsSeen: parsed.shortcutsSeen === true,
+          autoPlay: parsed.autoPlay === true,
           isHydrated: true
         })
 
@@ -224,6 +232,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
     })),
 
     markShortcutsSeen: () => mutate(() => ({ shortcutsSeen: true })),
+    setAutoPlay: (value) => mutate(() => ({ autoPlay: value })),
 
     toggleNotifications: () =>
       mutate((s) => ({

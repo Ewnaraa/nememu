@@ -76,9 +76,9 @@ const tabIds = literals(
   /id:\s*'([^']+)'/g
 )
 
-const setupSource = read('packages/renderer/src/screens/SetupScreen.tsx')
+const launcherSource = read('packages/renderer/src/screens/LauncherScreen.tsx')
 const stepTitles = literals(
-  setupSource.slice(setupSource.indexOf('const STEPS = ['), setupSource.indexOf('function ')),
+  launcherSource.slice(launcherSource.indexOf('const STEPS = ['), launcherSource.indexOf('function ')),
   /title:\s*'([^']+)'/g
 )
 // Progress text is produced in the main process and translated on render.
@@ -87,7 +87,7 @@ const progress = [
   ...literals(read('packages/main/updater/app-updater.ts'), /message:\s*'([^']+)'/g),
   // A setMessage call can carry several literals (a ternary, a ?? fallback), so
   // each call's whole argument list is scanned rather than just its first string.
-  ...[...setupSource.matchAll(/setMessage\(([^)]*)\)/g)].flatMap((m) =>
+  ...[...launcherSource.matchAll(/setMessage\(([^)]*)\)/g)].flatMap((m) =>
     literals(m[1], /'([^']+)'/g)
   )
 ]

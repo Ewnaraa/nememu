@@ -11,6 +11,25 @@ Chaque entrée est écrite pour quelqu'un qui joue, pas pour quelqu'un qui lit l
 code : ce qui change à l'écran, et ce qu'il faut faire s'il y a quelque chose à
 faire.
 
+## 0.3.0
+
+### Ajouté
+
+- **Un vrai launcher.** À la place du bandeau de progression qui apparaissait,
+  se remplissait et se refermait tout seul dans le jeu, une fenêtre qui montre
+  où en est le téléchargement, ce qui a changé dans la version, et un bouton
+  **Jouer**. Le client avait une porte d'entrée qui passait trop vite pour être
+  lue.
+- Les **nouveautés de la version** sont affichées dans le launcher. Elles sont
+  lues dans le journal des versions au moment de la compilation : la page de
+  release et le launcher ne peuvent donc pas raconter deux histoires
+  différentes du même build.
+- Case **« Passer cet écran au prochain lancement »**, pour ceux que le clic
+  supplémentaire agace. Le launcher reste alors visible le temps du
+  téléchargement, puis enchaîne tout seul comme avant.
+- Les réglages sont accessibles **depuis le launcher**, sans avoir à démarrer
+  le jeu d'abord.
+
 ## 0.2.1
 
 ### Corrigé
