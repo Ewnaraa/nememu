@@ -40,7 +40,10 @@ function SettingsOverlay() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '14px 18px 8px',
         }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: colors.text, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>{t('Settings')}</span>
+          {/* No font-family here: it repeated an older, shorter version of the
+              stack in index.css, so this one heading quietly diverged from the
+              rest of the app every time that stack was touched. */}
+          <span style={{ fontSize: 14, fontWeight: 600, color: colors.text }}>{t('Settings')}</span>
           <button
             onClick={() => setSettingsOpen(false)}
             style={{ background: 'none', border: 'none', color: colors.textFaint, cursor: 'pointer', padding: 4, borderRadius: 4, display: 'flex', alignItems: 'center' }}

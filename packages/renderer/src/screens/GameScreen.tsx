@@ -406,7 +406,7 @@ function GameIframe({
             borderRadius: 4,
             background: 'rgba(0,0,0,0.55)',
             color: fps >= 50 ? '#7ddc7d' : fps >= 30 ? colors.accentText : colors.danger,
-            fontFamily: 'monospace',
+            fontFamily: 'var(--font-mono)',
             fontSize: 11,
             lineHeight: 1.6,
             pointerEvents: 'none',
@@ -787,8 +787,12 @@ export function GameScreen() {
                 gap: 6,
                 padding: '0 12px',
                 height: '100%',
-                fontSize: 11,
-                fontFamily: 'monospace',
+                fontSize: 11.5,
+                // A character name is a name, not a column of data. Monospace
+                // here bought no alignment — the tabs are sized to content —
+                // and read like a terminal, which is not what a tab strip full
+                // of Ilymira and Aratee should look like.
+                letterSpacing: '0.01em',
                 border: 'none',
                 borderRight: `1px solid ${colors.borderSubtle}`,
                 cursor: 'pointer',

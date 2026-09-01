@@ -210,7 +210,7 @@ function HotkeysTab() {
               <button
                 onClick={() => setRecording(recording === action ? null : action)}
                 style={{
-                  minWidth: 110, padding: '4px 12px', borderRadius: 5, fontSize: 11, fontFamily: 'monospace', cursor: 'pointer', textAlign: 'center',
+                  minWidth: 110, padding: '4px 12px', borderRadius: 5, fontSize: 11, fontFamily: 'var(--font-mono)', cursor: 'pointer', textAlign: 'center',
                   background: recording === action ? colors.accentFocus : colors.input,
                   border: `1px solid ${recording === action ? colors.accentBorder : colors.border}`,
                   color: recording === action ? colors.accentText : colors.textMuted,
@@ -335,9 +335,9 @@ function AboutTab() {
   const t = useT()
   return (
     <Section title="Nememu">
-      <Row label={t('Version')}><span style={{ fontFamily: 'monospace', fontSize: 12, color: colors.textMuted }}>0.1.0</span></Row>
-      <Row label={t('Platform')}><span style={{ fontFamily: 'monospace', fontSize: 12, color: colors.textMuted }}>{navigator.platform}</span></Row>
-      <Row label={t('Engine')}><span style={{ fontFamily: 'monospace', fontSize: 12, color: colors.textMuted }}>Electron</span></Row>
+      <Row label={t('Version')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>0.1.0</span></Row>
+      <Row label={t('Platform')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>{navigator.platform}</span></Row>
+      <Row label={t('Engine')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>Electron</span></Row>
       <div style={{ padding: '16px 0 8px', fontSize: 12, color: colors.textFaint, lineHeight: 1.6 }}>Desktop client for Dofus Touch.</div>
     </Section>
   )
@@ -531,8 +531,11 @@ export function SettingsScreen() {
   const { loadSettings, isHydrated } = useSettingsStore()
   useEffect(() => { if (!isHydrated) loadSettings() }, [isHydrated, loadSettings])
 
+  // No font-family on the wrapper: it inherits --font-sans from the body like
+  // everything else. It used to pin its own stack, which is how the settings
+  // panel ended up on a different font from the window it opens over.
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div>
       <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${colors.borderSubtle}`, marginBottom: 4 }}>
         {TABS.map((item) => {
           const Icon = item.icon

@@ -158,7 +158,7 @@ export function ShortcutsOverlay({ onClose, onOpenSettings }: Props) {
                   </span>
                   <kbd
                     style={{
-                      fontFamily: 'monospace',
+                      fontFamily: 'var(--font-mono)',
                       fontSize: 11.5,
                       color: colors.accentText,
                       background: colors.surface,

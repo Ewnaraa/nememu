@@ -30,6 +30,19 @@ faire.
 - Les réglages sont accessibles **depuis le launcher**, sans avoir à démarrer
   le jeu d'abord.
 
+### Changé
+
+- **Le client utilise la police du système**, celle que ta machine a déjà :
+  Segoe UI sur Windows. Il demandait d'abord des polices qui ne sont livrées
+  avec rien (IBM Plex Sans, SF Pro Display) — donc sur une machine qui se
+  trouvait en avoir une installée, l'application n'avait pas la même tête que
+  chez tout le monde.
+- **Fini le Courier New.** Plusieurs endroits — les onglets, les touches de la
+  feuille de raccourcis, les numéros de version — demandaient « monospace »
+  tout court, ce que Windows sert en Courier New. Les noms de personnages sont
+  repassés en police normale (un nom n'est pas une colonne de chiffres), et ce
+  qui reste en chasse fixe est en Cascadia Mono ou Consolas.
+
 ## 0.2.1
 
 ### Corrigé
