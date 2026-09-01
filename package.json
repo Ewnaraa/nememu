@@ -13,7 +13,7 @@
     "release": "npm run build && electron-builder --publish always && npm run share",
     "tag": "node scripts/tag-release.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node tests/game-patches.test.mjs && node tests/hotkeys.test.mjs && node tests/notifications.test.mjs && node tests/i18n.test.mjs",
+    "test": "node tests/game-patches.test.mjs && node tests/hotkeys.test.mjs && node tests/notifications.test.mjs && node tests/i18n.test.mjs && node tests/styles.test.mjs",
     "share": "node scripts/make-share-zip.mjs"
   },
   "build": {

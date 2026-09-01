@@ -116,7 +116,11 @@ const chromeButton: CSSProperties = {
   background: 'none',
   border: 'none',
   color: colors.textMuted,
-  cursor: 'pointer'
+  cursor: 'pointer',
+  // Without this the title-bar buttons snap between states while everything
+  // else on the screen eases. One abrupt element is enough to make a whole
+  // interface feel cheap.
+  transition: 'background 0.18s var(--ease-out), color 0.18s var(--ease-out)'
 }
 
 export function LauncherScreen() {
@@ -337,10 +341,24 @@ export function LauncherScreen() {
           <span style={{ fontSize: 11, color: colors.textDim, fontFamily: 'var(--font-mono)' }}>{__APP_VERSION__}</span>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', height: '100%', WebkitAppRegion: 'no-drag' } as CSSProperties}>
-          <button onClick={() => setSettingsOpen(true)} title={t('Settings')} aria-label={t('Settings')} style={chromeButton}>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            title={t('Settings')}
+            aria-label={t('Settings')}
+            style={chromeButton}
+            onMouseEnter={(e) => { e.currentTarget.style.background = colors.surfaceActive; e.currentTarget.style.color = colors.white }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = colors.textMuted }}
+          >
             <Settings size={12} />
           </button>
-          <button onClick={() => window.nememu.minimize()} title={t('Minimize')} aria-label={t('Minimize')} style={chromeButton}>
+          <button
+            onClick={() => window.nememu.minimize()}
+            title={t('Minimize')}
+            aria-label={t('Minimize')}
+            style={chromeButton}
+            onMouseEnter={(e) => { e.currentTarget.style.background = colors.surfaceActive; e.currentTarget.style.color = colors.white }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = colors.textMuted }}
+          >
             <Minus size={12} />
           </button>
           <button
@@ -447,23 +465,23 @@ export function LauncherScreen() {
 
               {/* Nothing left to report once the files are ready: the headline
                   above already says so, and a full progress bar under it is a
-                  control that cannot be acted on. */}
-              {!ready && (
+                  control that cannot be acted on. It collapses rather than
+                  unmounting, so the Play button glides up instead of jumping
+                  the height of this whole block. */}
+              <div className="nememu-collapse" data-hidden={ready ? 'true' : 'false'} style={{ marginBottom: 16 }}>
               <div
                 style={{
                   border: `1px solid ${failure ? 'rgba(255,68,68,0.25)' : colors.border}`,
                   borderRadius: 8,
                   background: failure ? 'rgba(244,68,68,0.06)' : 'rgba(255,255,255,0.03)',
-                  padding: 12
+                  padding: 12,
+                  transition: 'border-color 0.3s var(--ease-out), background 0.3s var(--ease-out)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                   {failure ? (
                     <AlertTriangle size={16} color={colors.danger} />
-                  ) : status === 'app-ready' ? (
-                    // 'done' cannot reach here — the block only renders while
-                    // the files are not ready — so this is the app update's
-                    // own finished state, not the game download's.
+                  ) : status === 'app-ready' || ready ? (
                     <CheckCircle2 size={16} color={colors.accentText} />
                   ) : (
                     <LoaderCircle size={16} color={colors.accentText} style={{ animation: 'nememu-spin 1.2s linear infinite' }} />
@@ -528,7 +546,7 @@ export function LauncherScreen() {
                   <span style={{ fontFamily: 'var(--font-mono)' }}>{safePercent.toFixed(0)}%</span>
                 </div>
               </div>
-              )}
+              </div>
 
               {appUpdate?.phase === 'available' && status !== 'app-downloading' && (
                 <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -581,6 +599,11 @@ export function LauncherScreen() {
                   <button
                     onClick={launch}
                     disabled={!ready}
+                    className="nememu-play"
+                    // The glow breathes only once the button can be pressed: it
+                    // is an invitation, and inviting a click that does nothing
+                    // is worse than sitting still.
+                    data-ready={ready ? 'true' : 'false'}
                     title={ready ? undefined : t('The game files are still being prepared.')}
                     style={{
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
@@ -591,22 +614,21 @@ export function LauncherScreen() {
                       color: ready ? '#14151e' : colors.textDisabled,
                       fontSize: 15, fontWeight: 800, letterSpacing: '0.04em',
                       cursor: ready ? 'pointer' : 'not-allowed',
-                      // The glow breathes only once the button can be pressed:
-                      // it is an invitation, and inviting a click that does
-                      // nothing is worse than sitting still.
-                      animation: ready ? 'nememu-ready 2.6s ease-in-out infinite' : undefined,
-                      boxShadow: ready ? undefined : 'none',
-                      transition: 'filter 0.15s, transform 0.12s'
+                      transition:
+                        'background 0.45s var(--ease-out), color 0.45s var(--ease-out), ' +
+                        'filter 0.2s var(--ease-out), transform 0.2s var(--ease-out)'
                     }}
                     onMouseEnter={(e) => {
                       if (!ready) return
-                      e.currentTarget.style.filter = 'brightness(1.08)'
-                      e.currentTarget.style.transform = 'translateY(-1px)'
+                      e.currentTarget.style.filter = 'brightness(1.07)'
+                      e.currentTarget.style.transform = 'translateY(-1.5px)'
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.filter = 'none'
                       e.currentTarget.style.transform = 'none'
                     }}
+                    onMouseDown={(e) => { if (ready) e.currentTarget.style.transform = 'translateY(0.5px)' }}
+                    onMouseUp={(e) => { if (ready) e.currentTarget.style.transform = 'translateY(-1.5px)' }}
                   >
                     <Play size={16} fill="currentColor" />
                     <span>{t('Play')}</span>

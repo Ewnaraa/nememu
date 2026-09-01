@@ -65,9 +65,10 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5173
   },
-  css: {
-    postcss: {
-      plugins: []
-    }
-  }
+  // No `css.postcss` override here. It used to be `{ plugins: [] }`, which
+  // silently disabled the PostCSS setup in postcss.config.js — that is how a
+  // Tailwind `@theme` block ended up in the built stylesheet unprocessed, and
+  // with it the font variables the whole interface depends on. index.css is
+  // plain CSS now and needs no plugins; leaving the override in place would
+  // keep a switch that turns off a config file nobody would think to check.
 })

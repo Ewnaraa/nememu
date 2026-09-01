@@ -1,55 +1,103 @@
-@import "tailwindcss";
+/*
+ * Plain CSS. Tailwind was imported here and never ran.
+ *
+ * `postcss.config.js` wires up @tailwindcss/postcss, but the renderer's
+ * vite.config.ts overrode it with an empty plugin list — so the `@theme` block
+ * that used to sit at the top of this file was emitted into the built
+ * stylesheet verbatim, as an at-rule no browser understands. Everything
+ * declared inside it, including --font-sans and --font-mono, therefore did not
+ * exist. `body { font-family: var(--font-sans) }` was invalid and dropped, and
+ * the whole client rendered in the browser default: Times New Roman on Windows.
+ *
+ * Nothing errored, nothing looked wrong in the source, and the only way to see
+ * it was to ask the running page what font it had actually resolved.
+ *
+ * Not a single Tailwind utility class is used in this project and not one of
+ * that block's --color-* variables was ever read, so the import and the block
+ * are gone rather than repaired. tests/styles.test.mjs now guards the variables
+ * the interface cannot work without.
+ */
 
-@theme {
-  --color-background: hsl(240 6% 5%);
-  --color-foreground: hsl(36 25% 96%);
-  --color-card: hsl(240 6% 9%);
-  --color-card-foreground: hsl(36 25% 96%);
-  --color-popover: hsl(240 7% 11%);
-  --color-popover-foreground: hsl(36 25% 96%);
-  --color-secondary: hsl(240 5% 14%);
-  --color-secondary-foreground: hsl(36 20% 92%);
-  --color-muted: hsl(240 5% 14%);
-  --color-muted-foreground: hsl(36 8% 60%);
-  --color-primary: hsl(40 60% 50%);
-  --color-primary-foreground: hsl(0 0% 100%);
-  --color-accent: hsl(40 60% 50%);
-  --color-accent-foreground: hsl(0 0% 100%);
-  --color-ring: hsl(40 60% 50%);
-  --color-destructive: hsl(0 78% 60%);
-  --color-destructive-foreground: hsl(0 0% 100%);
-  --color-success: hsl(150 60% 55%);
-  --color-warning: hsl(36 90% 60%);
-  --color-border: hsl(240 5% 18%);
-  --color-input: hsl(240 5% 13%);
+/*
+ * The variables the interface cannot work without.
+ *
+ * Plain :root, so nothing can decide not to emit them. An undefined custom
+ * property makes every declaration that reads it invalid, and an invalid
+ * declaration is simply dropped — no error, no warning, no visible cause.
+ */
+:root {
   /*
-   * Segoe UI, named rather than implied.
-   *
-   * The stack used to open with "IBM Plex Sans" and "SF Pro Display" — faces
+   * The stack once opened with "IBM Plex Sans" and "SF Pro Display" — faces
    * that ship with nothing — so a machine that happened to have one installed
-   * rendered the whole client differently from everyone else's. For an app
-   * handed around between friends that means bug reports nobody else can
-   * reproduce.
+   * rendered differently from everyone else's.
    *
-   * `system-ui` fixed that but introduced a smaller version of the same
-   * problem: on Windows 11 Chromium resolves it to "Segoe UI Variable Text",
-   * a different face from the "Segoe UI" of Windows 10. Two friends on two
-   * Windows versions would not be looking at the same typography. Naming Segoe
-   * UI first settles it; system-ui stays behind it so macOS and Linux still get
-   * something native rather than Arial.
-   *
-   * The monospace stack matters for the same reason and for one more: the bare
-   * `monospace` keyword, which several components asked for by hand, resolves
-   * to Courier New on Windows. Naming Consolas and Cascadia Mono — both present
-   * on any current Windows — is what keeps a version number or a key cap from
-   * rendering as a typewriter.
+   * Segoe UI is named rather than left to system-ui, which Chromium resolves to
+   * "Segoe UI Variable Text" on Windows 11: a different face from the Segoe UI
+   * of Windows 10. Two friends on two Windows versions should not be looking at
+   * different typography. system-ui stays behind it so macOS and Linux still
+   * get something native rather than Arial.
    */
   --font-sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /*
+   * The bare `monospace` keyword resolves to Courier New on Windows. Naming
+   * Consolas and Cascadia Mono — both present on any current Windows — is what
+   * keeps a version number or a key cap from rendering as a typewriter.
+   */
   --font-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, "Liberation Mono", monospace;
-  --radius-sm: 0.125rem;
-  --radius-md: 0.25rem;
-  --radius-lg: 0.375rem;
-  --radius-xl: 0.5rem;
+
+  /*
+   * `ease` and `linear` start and stop abruptly, which is what makes an
+   * interface feel like a form rather than a product. These decelerate hard and
+   * settle: the motion finishes before the eye expects it, so nothing feels
+   * like it is waiting.
+   */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/*
+ * The reset Tailwind's preflight used to provide.
+ *
+ * Removing the framework removed this with it, which is a much quieter change
+ * than removing a colour palette nobody used: without border-box, every element
+ * with padding and a set width silently grows by its padding, and layouts drift
+ * everywhere at once. Written out rather than inherited, so it cannot leave
+ * again by accident.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
 }
 
 html,
@@ -59,6 +107,11 @@ body,
   width: 100%;
 }
 
+/* html too, not just body. Removing Tailwind's preflight left the root element
+   on the browser default, which on Windows is Times New Roman — invisible today
+   because everything lives inside body, and a trap the moment something does
+   not. */
+html,
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -105,16 +158,72 @@ body {
   }
 }
 
-/* The Play button asks to be pressed, quietly. */
-@keyframes nememu-ready {
+/*
+ * The Play button asks to be pressed, quietly.
+ *
+ * The glow is a separate layer behind the button rather than an animated
+ * box-shadow. A box-shadow cannot be composited: animating one repaints a large
+ * blurred area every frame, on the main thread, which is exactly the stutter
+ * this animation was supposed to hide. Opacity and transform are handled by the
+ * compositor and cost nothing.
+ */
+@keyframes nememu-breathe {
   0%,
   100% {
-    box-shadow: 0 8px 26px rgba(201, 162, 77, 0.26);
+    opacity: 0.34;
+    transform: scale(0.985);
   }
 
   50% {
-    box-shadow: 0 8px 34px rgba(201, 162, 77, 0.44);
+    opacity: 0.72;
+    transform: scale(1.015);
   }
+}
+
+.nememu-play {
+  position: relative;
+  isolation: isolate;
+}
+
+.nememu-play::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  border-radius: 16px;
+  background: radial-gradient(closest-side, rgba(201, 162, 77, 0.75), rgba(201, 162, 77, 0) 72%);
+  filter: blur(9px);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.nememu-play[data-ready='true']::after {
+  animation: nememu-breathe 2.8s var(--ease-in-out) infinite;
+}
+
+/*
+ * The progress block collapses instead of vanishing.
+ *
+ * It used to unmount the moment the files were ready, so the Play button jumped
+ * up the screen by the height of the whole block — the one hard cut in an
+ * otherwise calm interface, at the exact moment the player is about to aim for
+ * that button.
+ */
+.nememu-collapse {
+  overflow: hidden;
+  max-height: 220px;
+  opacity: 1;
+  transition:
+    max-height 0.45s var(--ease-out),
+    opacity 0.28s ease-out,
+    margin-bottom 0.45s var(--ease-out);
+}
+
+.nememu-collapse[data-hidden='true'] {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0 !important;
 }
 
 /* A sheen crossing the progress bar, so a stalled download still looks busy. */
@@ -187,4 +296,17 @@ body {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/*
+ * A visible focus ring, for anyone driving this with a keyboard.
+ *
+ * :focus-visible rather than :focus, so it appears for Tab and not for a mouse
+ * click — the reason the old blanket outline reset was tempting in the first
+ * place.
+ */
+:focus-visible {
+  outline: 2px solid rgba(219, 184, 103, 0.85);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
