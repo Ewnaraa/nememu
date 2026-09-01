@@ -52,12 +52,28 @@ if (!new RegExp(`^## ${version.replace(/\./g, '\\.')}$`, 'm').test(changelog)) {
   )
 }
 
-const tags = git('tag', '--list', tag)
-if (tags) {
+// Locally AND on the remote. A release created through the GitHub web form
+// tags server-side, so a repository that has only ever published that way has
+// no local tags at all — `git tag --list` would wave every one of them through
+// and the push would fail afterwards, once the branch had already moved.
+if (git('tag', '--list', tag)) {
   fail(
-    `Le tag ${tag} existe deja.`,
+    `Le tag ${tag} existe deja en local.`,
     'Une version publiee ne se remplace pas : monte le numero dans package.json.'
   )
+}
+
+try {
+  if (git('ls-remote', '--tags', 'origin', `refs/tags/${tag}`)) {
+    fail(
+      `Le tag ${tag} existe deja sur GitHub.`,
+      'Une version publiee ne se remplace pas : monte le numero dans package.json.'
+    )
+  }
+} catch (err) {
+  // Unreachable remote is not a reason to refuse: the push below will say so
+  // far more clearly than a guard guessing at why it could not look.
+  console.warn(`\n  (impossible de verifier les tags distants : ${err.message.split('\n')[0]})`)
 }
 
 // Pushing a tag carries the commits it points at, but leaves the branch behind.
