@@ -357,10 +357,21 @@ export function LauncherScreen() {
       </div>
 
       <div style={{ position: 'relative', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        {/* 48s, alternating, so neither end of the drift is ever a visible
+            stop. It starts already scaled up: the edges must never come into
+            frame while it moves. */}
         <img
           src={bgImg}
           alt=""
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            animation: 'nememu-drift 48s ease-in-out infinite alternate',
+            willChange: 'transform'
+          }}
         />
         {/* Two passes rather than one. A single flat scrim dark enough to read
             white text over kills the artwork; this keeps the left column dark
@@ -392,7 +403,14 @@ export function LauncherScreen() {
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                animation: 'nememu-rise 0.5s ease-out both'
+              }}
+            >
               <img
                 src={logoImg}
                 alt=""
@@ -417,7 +435,9 @@ export function LauncherScreen() {
               </div>
             </div>
 
-            <div style={{ marginTop: 'auto' }}>
+            {/* Staggered by a beat behind the wordmark, so the eye lands on the
+                name first and the state second. */}
+            <div style={{ marginTop: 'auto', animation: 'nememu-rise 0.5s ease-out 0.12s both' }}>
               <div style={{ fontSize: 17, fontWeight: 700, color: colors.text, marginBottom: 3 }}>
                 {headline}
               </div>
@@ -453,7 +473,7 @@ export function LauncherScreen() {
                   </div>
                 </div>
 
-                <div style={{ height: 8, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
+                <div style={{ position: 'relative', height: 8, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
                   <div
                     style={{
                       width: `${safePercent}%`,
@@ -461,6 +481,21 @@ export function LauncherScreen() {
                       borderRadius: 999,
                       background: `linear-gradient(90deg, ${colors.brandMuted}, ${colors.accent})`,
                       transition: 'width 0.3s ease'
+                    }}
+                  />
+                  {/* A sheen crossing the bar. Some steps sit at the same
+                      percentage for a long time — unpacking a big archive, a
+                      slow manifest — and a bar that has not moved in twenty
+                      seconds looks like a hung app. This says "still working"
+                      without pretending progress that has not happened. */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '25%',
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)',
+                      animation: 'nememu-sheen 2.4s ease-in-out infinite',
+                      pointerEvents: 'none'
                     }}
                   />
                 </div>
@@ -556,11 +591,22 @@ export function LauncherScreen() {
                       color: ready ? '#14151e' : colors.textDisabled,
                       fontSize: 15, fontWeight: 800, letterSpacing: '0.04em',
                       cursor: ready ? 'pointer' : 'not-allowed',
-                      boxShadow: ready ? '0 8px 26px rgba(201,162,77,0.28)' : 'none',
-                      transition: 'filter 0.15s'
+                      // The glow breathes only once the button can be pressed:
+                      // it is an invitation, and inviting a click that does
+                      // nothing is worse than sitting still.
+                      animation: ready ? 'nememu-ready 2.6s ease-in-out infinite' : undefined,
+                      boxShadow: ready ? undefined : 'none',
+                      transition: 'filter 0.15s, transform 0.12s'
                     }}
-                    onMouseEnter={(e) => { if (ready) e.currentTarget.style.filter = 'brightness(1.08)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.filter = 'none' }}
+                    onMouseEnter={(e) => {
+                      if (!ready) return
+                      e.currentTarget.style.filter = 'brightness(1.08)'
+                      e.currentTarget.style.transform = 'translateY(-1px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'none'
+                      e.currentTarget.style.transform = 'none'
+                    }}
                   >
                     <Play size={16} fill="currentColor" />
                     <span>{t('Play')}</span>
@@ -589,7 +635,8 @@ export function LauncherScreen() {
             style={{
               display: 'flex', flexDirection: 'column', minHeight: 0,
               border: `1px solid ${colors.brandBorderFaint}`, borderRadius: 10,
-              background: 'rgba(8,10,16,0.62)', backdropFilter: 'blur(6px)', overflow: 'hidden'
+              background: 'rgba(8,10,16,0.62)', backdropFilter: 'blur(6px)', overflow: 'hidden',
+              animation: 'nememu-rise 0.5s ease-out 0.22s both'
             }}
           >
             <div

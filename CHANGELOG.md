@@ -1,88 +1,48 @@
 # Journal des versions
 
-Les versions suivent `MAJEUR.MINEUR.CORRECTIF` :
+Numéros : `MAJEUR.MINEUR.CORRECTIF` — correctif = des bugs corrigés, mineur =
+du nouveau, majeur = tes habitudes changent.
 
-- **CORRECTIF** (0.2.**1**) — que des corrections, rien de nouveau à apprendre.
-- **MINEUR** (0.**3**.0) — nouvelles fonctionnalités, réglages ou raccourcis.
-- **MAJEUR** (**1**.0.0) — quelque chose change de comportement chez les joueurs
-  qui ont déjà installé, ou une mise à jour demande une action de leur part.
-
-Chaque entrée est écrite pour quelqu'un qui joue, pas pour quelqu'un qui lit le
-code : ce qui change à l'écran, et ce qu'il faut faire s'il y a quelque chose à
-faire.
+**Comment écrire une entrée** : une ligne, deux au maximum. Ce qui change à
+l'écran, pas pourquoi c'était cassé. Le « pourquoi » vit dans les commits ; ici
+on écrit pour quelqu'un qui veut juste savoir s'il doit mettre à jour. Ce
+fichier est affiché tel quel dans le launcher : ce qui est long n'y est pas lu.
 
 ## 0.3.1
 
-**À installer si tu es en 0.3.0** : le launcher pouvait rester bloqué au
-démarrage.
+À installer si tu es en 0.3.0.
 
 ### Corrigé
 
-- **Le launcher restait bloqué sur « Vérification des mises à jour ».** Deux
-  vérifications partent au démarrage, donc l'une d'elles pouvait annoncer
-  « je vérifie » *après* que le téléchargement du jeu soit déjà terminé. L'écran
-  repartait alors en arrière, à 0 %, et n'en revenait jamais — le bouton Jouer
-  restait grisé pour de bon. Le plus vicieux : pendant ce temps le journal
-  affichait que tout avait réussi, parce que tout avait effectivement réussi.
-  La mise à jour de l'application est facultative, le jeu ne l'est pas : elle
-  ne peut plus reprendre la main une fois les fichiers du jeu prêts.
-- **Le launcher pouvait attendre indéfiniment une vérification qui ne répond
-  jamais.** Derrière un portail captif ou un pare-feu, l'appel à GitHub peut ne
-  jamais aboutir, et rien en aval n'avait de délai. Au bout de 8 secondes, le
-  téléchargement du jeu démarre sans attendre.
-- **Le launcher n'écrivait rien dans le journal.** Ses messages partaient dans
-  la console du renderer, et seule la fenêtre de jeu renvoyait sa console vers
-  le fichier. Autrement dit, le seul écran sur lequel on peut rester coincé
-  était le seul dont on n'avait aucune trace. Il journalise maintenant son
-  démarrage, et signale s'il meurt ou se fige.
-- **L'échec de lecture des réglages était silencieux.** Le client repartait sur
-  les valeurs par défaut — interface en anglais, raccourcis d'origine — sans
-  rien dire, alors que le fichier sur le disque contenait toujours les bonnes
-  valeurs. L'échec est maintenant journalisé, et le démarrage indique la langue
-  retenue.
+- Le launcher pouvait rester bloqué sur « Vérification des mises à jour », bouton
+  Jouer grisé pour de bon.
+- Il attend au maximum 8 secondes la vérification de mise à jour, puis lance le
+  téléchargement du jeu sans elle.
+- Le launcher n'écrivait rien dans le journal. C'était le seul écran sur lequel
+  on peut rester coincé, et le seul dont on n'avait aucune trace.
+- Si les réglages ne se chargeaient pas, le client repartait en anglais sans
+  rien dire.
 
 ## 0.3.0
 
 ### Ajouté
 
-- **Un vrai launcher.** À la place du bandeau de progression qui apparaissait,
-  se remplissait et se refermait tout seul dans le jeu, une fenêtre qui montre
-  où en est le téléchargement, ce qui a changé dans la version, et un bouton
-  **Jouer**. Le client avait une porte d'entrée qui passait trop vite pour être
-  lue.
-- Les **nouveautés de la version** sont affichées dans le launcher. Elles sont
-  lues dans le journal des versions au moment de la compilation : la page de
-  release et le launcher ne peuvent donc pas raconter deux histoires
-  différentes du même build.
-- Case **« Passer cet écran au prochain lancement »**, pour ceux que le clic
-  supplémentaire agace. Le launcher reste alors visible le temps du
-  téléchargement, puis enchaîne tout seul comme avant.
-- Les réglages sont accessibles **depuis le launcher**, sans avoir à démarrer
-  le jeu d'abord.
+- **Un launcher.** À la place du bandeau qui se refermait tout seul : l'état du
+  téléchargement, les nouveautés, et un bouton Jouer.
+- Les nouveautés de la version s'affichent dans le launcher.
+- Case « Passer cet écran au prochain lancement », si le clic t'agace.
+- Les réglages sont accessibles depuis le launcher, sans démarrer le jeu.
 
 ### Changé
 
-- **Le client utilise la police du système**, celle que ta machine a déjà :
-  Segoe UI sur Windows. Il demandait d'abord des polices qui ne sont livrées
-  avec rien (IBM Plex Sans, SF Pro Display) — donc sur une machine qui se
-  trouvait en avoir une installée, l'application n'avait pas la même tête que
-  chez tout le monde.
-- **Fini le Courier New.** Plusieurs endroits — les onglets, les touches de la
-  feuille de raccourcis, les numéros de version — demandaient « monospace »
-  tout court, ce que Windows sert en Courier New. Les noms de personnages sont
-  repassés en police normale (un nom n'est pas une colonne de chiffres), et ce
-  qui reste en chasse fixe est en Cascadia Mono ou Consolas.
+- Le client utilise la police du système, la même pour tout le monde.
+- Fini le Courier New dans les onglets et les numéros de version.
 
 ## 0.2.1
 
 ### Corrigé
 
-- **Le journal ne disait pas si la recherche de mise à jour avait eu lieu.**
-  Seuls les échecs y laissaient une trace : une vérification qui aboutissait
-  n'écrivait rien du tout. Impossible, à la lecture, de distinguer une
-  vérification qui a tourné et n'a rien trouvé d'une vérification qui n'est
-  jamais partie — c'est-à-dire impossible de répondre à « le bouton de mise à
-  jour ne fait rien ». Les deux issues sont maintenant journalisées.
+- Le journal ne disait pas si la recherche de mise à jour avait eu lieu.
 
 ## 0.2.0
 
@@ -90,30 +50,17 @@ Première version sous le nom **Nememu**.
 
 ### Changé
 
-- **L'application s'appelle Nememu.** Au premier lancement, le compte
-  enregistré, les raccourcis remappés, la taille de fenêtre et le jeu déjà
-  téléchargé sont déplacés automatiquement vers le nouveau dossier de données —
-  y compris le certificat d'appareil d'Ankama, donc **pas de code par mail** à
+- **L'application s'appelle Nememu.** Ton compte, tes raccourcis, ta fenêtre et
+  le jeu déjà téléchargé sont déplacés automatiquement — pas de code par mail à
   cause du changement de nom.
-- **Nouvelle icône** : un œuf de Dofus marqué d'un N. Elle est dessinée en deux
-  versions, une pour les grandes tailles et une plus lisible en 16-32 px, pour
-  rester nette dans la barre des tâches.
-- La marque apparaît à gauche de la barre de titre, et la version s'affiche au
-  survol — c'est ce numéro qu'il faut donner en cas de problème.
-- L'écran de premier lancement affiche la version au lieu d'une mention interne
-  (« Install window ») qui n'aurait jamais dû être visible.
+- **Nouvelle icône** : un œuf de Dofus marqué d'un N.
+- La marque apparaît dans la barre de titre, la version s'affiche au survol.
 
 ### Corrigé
 
-- **L'icône de la fenêtre n'était pas embarquée dans l'installeur.** Le chemin
-  pointait à l'intérieur de l'archive de l'application, où le fichier n'était
-  pas copié. Sur Windows ça ne se voyait pas — l'exécutable porte l'icône
-  compilée en dur — mais le regroupement dans la barre des tâches et la fenêtre
-  de mise à jour retombaient sur l'icône par défaut d'Electron.
-- La croix de fermeture d'un onglet ne s'éclaircissait pas toujours au survol :
-  le pointeur atterrissait sur le tracé de l'icône, pas sur la zone stylée.
-- Infobulles ajoutées sur les boutons qui n'en avaient pas : réglages, nouvel
-  onglet, fermer l'onglet, réduire, agrandir, restaurer, fermer.
+- L'icône de la fenêtre n'était pas embarquée dans l'installeur.
+- La croix de fermeture d'un onglet ne s'éclaircissait pas toujours au survol.
+- Infobulles ajoutées sur les boutons qui n'en avaient pas.
 
 ## 0.1.0
 
@@ -122,34 +69,20 @@ Première version distribuée (sous le nom DofEmu).
 ### Ajouté
 
 - **Raccourcis clavier**, que le jeu tactile n'a pas : sorts 1-8, passer son
-  tour, prêt au combat, changement d'onglet, fenêtres du jeu (sorts, quêtes,
-  métiers, amis, guilde), ouverture du chat avec Entrée, changement de map aux
-  flèches, compteur de FPS.
-- **Feuille des raccourcis** ouverte au premier lancement puis accessible par
-  l'icône clavier — elle affiche les touches réellement configurées, pas les
-  touches par défaut.
-- **Interface en français**, avec sélecteur de langue.
-- **Compte enregistré** : le certificat d'appareil d'une session déjà connectée
-  est conservé, chiffré par le trousseau de Windows, pour éviter le code par
-  mail à chaque lancement.
-- **Détection des déconnexions** : l'onglet est grisé, une pastille rouge
-  apparaît et une notification système prévient.
-- **Journal sur disque** dans le dossier de données, le lancement précédent
-  conservé, plafonné à 2 Mo, répétitions repliées.
+  tour, prêt au combat, changement d'onglet, fenêtres du jeu, chat avec Entrée,
+  changement de map aux flèches, compteur de FPS.
+- **Feuille des raccourcis** au premier lancement, puis via l'icône clavier.
+- **Interface en français.**
+- **Compte enregistré** : plus de code par mail à chaque lancement.
+- **Détection des déconnexions** : onglet grisé, pastille rouge, notification.
+- **Journal sur disque**, pour pouvoir diagnostiquer un problème.
 
 ### Corrigé
 
-- **Les chiffres du haut du clavier ne lançaient aucun sort en AZERTY** : la
-  touche « 1 » y produit `&`. Les raccourcis chiffrés se lisent maintenant sur
-  la touche physique.
-- **Appuyer sur Espace hors combat faisait planter le client** : le raccourci
-  « prêt au combat » envoyait le message au serveur sans vérifier qu'il y avait
-  un combat.
-- **Les mises à jour de l'application pointaient vers le dépôt d'origine.**
-  Chaque copie distribuée était à un clic de se remplacer par un binaire non
-  audité. Le flux est désactivé.
-- **Le port local occupé était invisible** : le repli sur un autre port change
-  l'adresse du jeu, donc perd le certificat d'appareil et ramène le code par
-  mail. Un bandeau le dit maintenant, et nomme le port à libérer.
-- Les erreurs de démarrage (« fetch failed », « ENOSPC »…) sont traduites en
-  phrases actionnables, le texte brut conservé en dessous.
+- **Les chiffres du haut du clavier ne lançaient aucun sort en AZERTY.**
+- **Espace hors combat faisait planter le client.**
+- Les mises à jour pointaient vers le dépôt d'origine : chaque copie était à un
+  clic de se remplacer par un binaire non audité.
+- Le port local occupé était invisible, alors qu'il fait revenir le code par
+  mail. Un bandeau le signale et nomme le port à libérer.
+- Les erreurs de démarrage sont traduites en phrases actionnables.

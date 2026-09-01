@@ -63,6 +63,66 @@ body {
   overflow: hidden;
 }
 
+/*
+ * Movement in the launcher.
+ *
+ * A launcher that is completely still reads as a screenshot — you check whether
+ * the app has frozen. Everything below is slow and small on purpose: the point
+ * is to look alive, not to be looked at. Nothing here loops faster than a
+ * couple of seconds, and nothing moves under text that is being read.
+ *
+ * All of it is switched off under prefers-reduced-motion at the bottom of this
+ * file. That setting is not a preference to be polite about — for some people
+ * drifting backgrounds cause actual nausea.
+ */
+
+/* The artwork breathes: a very slow drift and zoom, no visible start or end. */
+@keyframes nememu-drift {
+  0% {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: scale(1.13) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+/* Content arrives instead of appearing, once, on load. */
+@keyframes nememu-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The Play button asks to be pressed, quietly. */
+@keyframes nememu-ready {
+  0%,
+  100% {
+    box-shadow: 0 8px 26px rgba(201, 162, 77, 0.26);
+  }
+
+  50% {
+    box-shadow: 0 8px 34px rgba(201, 162, 77, 0.44);
+  }
+}
+
+/* A sheen crossing the progress bar, so a stalled download still looks busy. */
+@keyframes nememu-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(300%);
+  }
+}
+
 @keyframes nememu-spin {
   from {
     transform: rotate(0deg);
@@ -105,4 +165,21 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(0 0% 100% / 0.18);
   background-clip: padding-box;
+}
+
+/*
+ * Someone who has asked their system for less motion gets none of it.
+ *
+ * Windows exposes this as "Show animations in Windows"; the browser reports it
+ * as prefers-reduced-motion. Overriding animation-name rather than duration is
+ * deliberate: a zero-duration animation still applies its final keyframe, which
+ * would leave the artwork stuck at its zoomed-in end state.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
