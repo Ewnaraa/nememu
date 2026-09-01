@@ -77,7 +77,14 @@ fs.rmSync(stageDir, { recursive: true, force: true })
 function changelogSection() {
   const file = path.join(root, 'CHANGELOG.md')
   if (!fs.existsSync(file)) return ''
-  const text = fs.readFileSync(file, 'utf-8')
+
+  // Line endings are normalised before anything is searched for.
+  //
+  // Git checks this file out with CRLF on Windows, so a fresh clone — which is
+  // exactly what a CI runner builds from — held "\r\n## 0.3.1\r\n" while this
+  // looked for "\n## 0.3.1\n" and found nothing. It failed only away from the
+  // machine the file was written on: locally the section was found every time.
+  const text = fs.readFileSync(file, 'utf-8').replace(/\r\n/g, '\n')
   const start = text.indexOf(`\n## ${version}\n`)
   if (start === -1) return ''
   const rest = text.slice(start + 1)

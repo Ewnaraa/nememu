@@ -98,7 +98,8 @@ shortcut into a failing test.
 ```bash
 pnpm run build     # compile only
 pnpm run dist      # build + package + zip, nothing is published
-pnpm run release   # same, and uploads to GitHub — needs GH_TOKEN
+pnpm run tag       # validate, tag, push — CI builds and publishes
+pnpm run release   # local build + upload, for when CI is unavailable (GH_TOKEN)
 ```
 
 `pnpm run dist` writes to `release/`: the installer, its `.blockmap`,
@@ -111,14 +112,23 @@ hand to someone directly.
 Step by step, in French, in [docs/PUBLIER.md](docs/PUBLIER.md). In short:
 
 1. Bump `version` in `package.json` and add a matching `## x.y.z` section to
-   `CHANGELOG.md` — the notes are generated from it, and a missing section is
-   reported rather than silently skipped.
-2. `pnpm test && pnpm run typecheck && pnpm run dist`.
-3. Create the GitHub release and attach **all three** of
-   `Nememu-Setup-x.y.z.exe`, its `.blockmap`, and `latest.yml`.
-   Paste `release/NOTES.md` as the body.
+   `CHANGELOG.md` — the notes are generated from it, and a missing section
+   stops the release rather than being silently skipped.
+2. Commit.
+3. `pnpm run tag`.
 
-Two things quietly break an otherwise correct release:
+That pushes a `vx.y.z` tag, and `.github/workflows/release.yml` does the rest on
+a clean Windows runner: install, typecheck, test, build, package, then create
+the release with `NOTES.md` as its body and all three artifacts attached.
+
+Building there rather than locally is the point. A local build packages the
+*working tree*, so an uncommitted edit ships to everyone while the repository
+no longer describes the binary they are running — which is how the 0.3.0
+installer was made. It also means no long-lived token has to live on a laptop:
+the runner's `GITHUB_TOKEN` is created for the run and dies with it.
+
+Two things quietly break an otherwise correct release, and are why the workflow
+assembles every release the same way rather than by hand:
 
 - **`latest.yml` is missing.** It is what the in-app updater reads. A release
   published without it is invisible to every copy already installed — the update

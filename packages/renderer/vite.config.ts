@@ -26,7 +26,12 @@ function changelogForVersion(): string {
   const file = path.resolve(__dirname, '../../CHANGELOG.md')
   if (!fs.existsSync(file)) return ''
 
-  const text = fs.readFileSync(file, 'utf-8')
+  // Normalised first: Git checks this out with CRLF on Windows, so on a fresh
+  // clone — a CI runner, say — the file holds "\r\n## 0.3.1\r\n" and a search
+  // for "\n## 0.3.1\n" silently finds nothing. The launcher's "what's new"
+  // panel would then be empty in every build except the ones made on the
+  // machine where the changelog was written.
+  const text = fs.readFileSync(file, 'utf-8').replace(/\r\n/g, '\n')
   const start = text.indexOf(`\n## ${version}\n`)
   if (start === -1) {
     console.warn(`[nememu] CHANGELOG.md has no "## ${version}" section — the launcher will show no release notes.`)

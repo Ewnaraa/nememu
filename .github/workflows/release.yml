@@ -1,0 +1,112 @@
+# Builds and publishes a release when a v* tag is pushed.
+#
+# Why a clean machine rather than `pnpm run release` on the laptop:
+#
+# - It builds from what is COMMITTED. A local build packages the working tree,
+#   so an uncommitted edit ships to everyone and the repository stops describing
+#   the binary people are running. Not hypothetical: the 0.3.0 installer was
+#   built that way.
+# - It needs no personal access token. GITHUB_TOKEN is issued to this run and
+#   dies with it, so nothing long-lived has to sit on the laptop.
+# - It cannot forget latest.yml. Every release is assembled by the same lines,
+#   and a release missing that file is invisible to the updater.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # A tag that disagrees with package.json produces an installer whose
+      # filename, its own version and latest.yml all name a different release
+      # from the tag it hangs on. Everything then looks right and resolves to
+      # nothing.
+      - name: Check the tag matches package.json
+        shell: pwsh
+        run: |
+          $pkg = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tag = "${{ github.ref_name }}" -replace '^v', ''
+          if ($pkg -ne $tag) {
+            throw "Tag $tag does not match package.json ($pkg). Bump one or the other."
+          }
+          Write-Host "Releasing $pkg"
+
+      # The changelog section is not decoration: it is the release body and the
+      # launcher's "what's new" panel. Missing, both are empty, and nobody
+      # notices until the release is already out.
+      - name: Check the changelog has a section for this version
+        shell: pwsh
+        run: |
+          $pkg = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          # \s*$ rather than $: the file is checked out with CRLF, so an
+          # anchored end-of-line sits after a carriage return.
+          $pattern = "^## " + [regex]::Escape($pkg) + "\s*$"
+          if (-not (Select-String -Path CHANGELOG.md -Pattern $pattern -Quiet)) {
+            throw "CHANGELOG.md has no '## $pkg' section."
+          }
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # Writes release/: the installer, its blockmap, latest.yml, LISEZ-MOI.txt
+      # and NOTES.md, each carrying the fingerprint of the file just built.
+      - name: Build and package
+        run: pnpm run dist
+
+      # Published with the GitHub CLI rather than electron-builder's own
+      # publisher, for one reason: NOTES.md carries the installer's SHA256, so
+      # it cannot exist until the installer does. Publishing as a separate step
+      # is what lets the release body be the generated notes instead of an
+      # auto-filled list of commits.
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $pkg = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $files = @(
+            "release/Nememu-Setup-$pkg.exe",
+            "release/Nememu-Setup-$pkg.exe.blockmap",
+            "release/latest.yml"
+          )
+          foreach ($f in $files) {
+            if (-not (Test-Path $f)) { throw "Missing $f" }
+          }
+          gh release create "${{ github.ref_name }}" `
+            --title "Nememu $pkg" `
+            --notes-file release/NOTES.md `
+            @files
+
+      # Kept so a published release can be re-checked against exactly what the
+      # runner produced, without rebuilding and getting different bytes.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nememu-${{ github.ref_name }}
+          path: |
+            release/Nememu-Setup-*.exe
+            release/latest.yml
+            release/NOTES.md
+            release/LISEZ-MOI.txt
+          retention-days: 30
