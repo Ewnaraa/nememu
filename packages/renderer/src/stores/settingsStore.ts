@@ -172,12 +172,28 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
         })
 
         const hydrated = get()
+
+        // What actually came back, in one line. "The app is in English" and
+        // "the app never read my settings" look identical on screen and, until
+        // now, identical in the log — which is to say invisible. This says
+        // which language was resolved and whether anything was read at all.
+        window.nememu.logger.info(
+          `Settings loaded: language=${hydrated.language}, autoPlay=${hydrated.autoPlay}, ` +
+          `keys=${Object.keys(parsed ?? {}).join('|') || 'none'}`
+        )
+
         applyToMain(hydrated)
         // Re-sending the whole payload is what makes the main process apply the
         // proxy, which it only ever does on receiving settings. It also means a
         // future setting read from this payload cannot silently miss startup.
         persist(hydrated)
-      } catch {
+      } catch (err) {
+        // Never silent. This catch used to swallow everything and carry on with
+        // the defaults, which looks exactly like "the app is in English and my
+        // hotkeys are gone" with nothing anywhere to say why — the settings file
+        // on disk still holds the right values, so even reading it proves
+        // nothing. Whatever went wrong, the log now says so.
+        window.nememu.logger.error('Settings could not be loaded — falling back to defaults', err)
         set({ isHydrated: true })
       }
     },

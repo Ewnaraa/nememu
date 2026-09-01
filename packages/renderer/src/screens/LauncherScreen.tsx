@@ -138,6 +138,10 @@ export function LauncherScreen() {
   const gameUpdateStartedRef = useRef(false)
   const installedRef = useRef(false)
   const launchedRef = useRef(false)
+  // True once the game files have finished, one way or the other. A ref, not
+  // state, because the app-update callbacks read it from closures that were
+  // created before it changed.
+  const settledRef = useRef(false)
 
   // The launcher owns the settings now: it reads autoPlay, and its gear opens
   // the same panel the game window uses. Nothing hydrated them here before,
@@ -167,8 +171,11 @@ export function LauncherScreen() {
 
     try {
       await window.nememu.downloadGame()
+      settledRef.current = true
       setStatus('done')
     } catch (err: unknown) {
+      settledRef.current = true
+
       if (installed) {
         window.nememu.logger.warn('Game update failed, existing install can still be launched', err)
         setStatus('done')
@@ -182,6 +189,22 @@ export function LauncherScreen() {
 
   const handleAppUpdateStatus = (update: AppUpdateStatus, installed: boolean) => {
     setAppUpdate(update)
+
+    // Once the game files are settled, an app-update push must not drag the
+    // screen backwards.
+    //
+    // This is what left the launcher stuck. Two checks run at startup — one the
+    // updater schedules 1.8s in, one this screen asks for — so a "checking"
+    // push can land *after* the game download has already finished. It reset
+    // the screen to "Checking for app update…" at 0%, and when the check ended,
+    // the branch below handed off to runUpdate, which had already run and
+    // returned immediately without restoring anything. Dead end, forever, while
+    // the log cheerfully reported that everything had succeeded.
+    //
+    // The app update is optional and runs beside the game, not in front of it.
+    if (settledRef.current && (update.phase === 'checking' || update.phase === 'downloading')) {
+      return
+    }
 
     if (update.phase === 'checking') {
       setStatus('checking')
@@ -211,6 +234,30 @@ export function LauncherScreen() {
       void runUpdate(installed)
     }
   }
+
+  // The app-update check is not allowed to hold the game hostage.
+  //
+  // The startup path hands off to the game download only once the update check
+  // reaches a terminal state. That check is a network call to GitHub: behind a
+  // captive portal, a blocking firewall or a dead connection it can simply
+  // never answer, and nothing downstream has a timeout of its own. The player
+  // would sit in front of "Checking for app update…" with no way forward and
+  // nothing in the log, because from the app's point of view nothing failed.
+  //
+  // Updates are optional. The game is not. After this grace period the game
+  // update starts regardless; if the check answers later, its result is still
+  // shown, and an available update still announces itself.
+  const APP_UPDATE_GRACE_MS = 8000
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      if (gameUpdateStartedRef.current) return
+      window.nememu.logger.warn(
+        `App update check did not answer within ${APP_UPDATE_GRACE_MS} ms — starting the game update without it.`
+      )
+      void runUpdate(installedRef.current)
+    }, APP_UPDATE_GRACE_MS)
+    return () => window.clearTimeout(id)
+  }, [])
 
   useEffect(() => {
     if (didStartRef.current) return

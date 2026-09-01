@@ -54,6 +54,50 @@ export class LauncherWindow extends EventEmitter {
     })
 
     this._win.on('closed', () => this.emit('closed'))
+
+    // Everything this window says goes to the log file.
+    //
+    // It said nothing at all before. `window.nememu.logger` writes to the
+    // renderer's console, and only the *game* window forwarded its console to
+    // the file — so the one screen a player can get stuck on was the one window
+    // whose messages went nowhere. A launcher frozen at "Checking for app
+    // update…" produced a log in which every line reported success.
+    //
+    // Unlike the game window, which is filtered to warnings and errors because
+    // Dofus Touch shouts hundreds of times a second, this window is quiet
+    // enough to keep everything: its whole startup story is a handful of lines,
+    // and that story is exactly what is missing when someone reports a launcher
+    // that never gets anywhere.
+    this._win.webContents.on('console-message', (_e, level, message) => {
+      if (level >= 3) logger.error(`[launcher] ${message}`)
+      else if (level >= 2) logger.warn(`[launcher] ${message}`)
+      else logger.info(`[launcher] ${message}`)
+    })
+
+    // A renderer that dies writes nothing to its own console on the way out,
+    // so these are the only trace such a failure would ever leave. The launcher
+    // had none of them: if it died before drawing, the window simply sat there
+    // and the log ended mid-startup with no explanation.
+    this._win.webContents.on('render-process-gone', (_e, details) => {
+      logger.error(
+        `Launcher window died: reason=${details.reason} exitCode=${details.exitCode}. ` +
+          'Everything above this line is what led to it.'
+      )
+    })
+
+    this._win.webContents.on('unresponsive', () => {
+      logger.error('Launcher window stopped responding (frozen).')
+    })
+
+    this._win.webContents.on('did-fail-load', (_e, errorCode, errorDescription) => {
+      if (errorCode === -3) return
+      logger.error(`Launcher failed to load (${errorCode} ${errorDescription}).`)
+    })
+
+    this._win.webContents.on('preload-error', (_e, preloadPath, error) => {
+      logger.error(`Launcher preload script failed: ${preloadPath}`, error)
+    })
+
     this._win.loadURL(opts.url)
     logger.info(`Loading launcher URL: ${opts.url}`)
   }

@@ -11,6 +11,36 @@ Chaque entrée est écrite pour quelqu'un qui joue, pas pour quelqu'un qui lit l
 code : ce qui change à l'écran, et ce qu'il faut faire s'il y a quelque chose à
 faire.
 
+## 0.3.1
+
+**À installer si tu es en 0.3.0** : le launcher pouvait rester bloqué au
+démarrage.
+
+### Corrigé
+
+- **Le launcher restait bloqué sur « Vérification des mises à jour ».** Deux
+  vérifications partent au démarrage, donc l'une d'elles pouvait annoncer
+  « je vérifie » *après* que le téléchargement du jeu soit déjà terminé. L'écran
+  repartait alors en arrière, à 0 %, et n'en revenait jamais — le bouton Jouer
+  restait grisé pour de bon. Le plus vicieux : pendant ce temps le journal
+  affichait que tout avait réussi, parce que tout avait effectivement réussi.
+  La mise à jour de l'application est facultative, le jeu ne l'est pas : elle
+  ne peut plus reprendre la main une fois les fichiers du jeu prêts.
+- **Le launcher pouvait attendre indéfiniment une vérification qui ne répond
+  jamais.** Derrière un portail captif ou un pare-feu, l'appel à GitHub peut ne
+  jamais aboutir, et rien en aval n'avait de délai. Au bout de 8 secondes, le
+  téléchargement du jeu démarre sans attendre.
+- **Le launcher n'écrivait rien dans le journal.** Ses messages partaient dans
+  la console du renderer, et seule la fenêtre de jeu renvoyait sa console vers
+  le fichier. Autrement dit, le seul écran sur lequel on peut rester coincé
+  était le seul dont on n'avait aucune trace. Il journalise maintenant son
+  démarrage, et signale s'il meurt ou se fige.
+- **L'échec de lecture des réglages était silencieux.** Le client repartait sur
+  les valeurs par défaut — interface en anglais, raccourcis d'origine — sans
+  rien dire, alors que le fichier sur le disque contenait toujours les bonnes
+  valeurs. L'échec est maintenant journalisé, et le démarrage indique la langue
+  retenue.
+
 ## 0.3.0
 
 ### Ajouté
