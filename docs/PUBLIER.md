@@ -10,12 +10,16 @@ qu'ils ne cliquent pas.
 1. package.json  -> monte "version"
 2. CHANGELOG.md  -> ajoute une section "## X.Y.Z" tout en haut
 3. git commit
-4. pnpm run tag
+4. npm run tag
 ```
 
-C'est tout. `pnpm run tag` verifie, pose le tag et le pousse ; GitHub construit
+C'est tout. `npm run tag` verifie, pose le tag et le pousse ; GitHub construit
 et publie la release tout seul. Tu suis l'avancement sur l'onglet **Actions** du
 depot.
+
+> Les commandes ci-dessous utilisent `npm`, qui est deja installe sur ta
+> machine. Si tu installes un jour pnpm (le gestionnaire du projet), `pnpm run
+> tag` fait exactement la meme chose.
 
 ## 1. Preparer la version
 
@@ -30,12 +34,12 @@ Le numero suit `MAJEUR.MINEUR.CORRECTIF` :
 La section du CHANGELOG n'est pas decorative : elle est lue a la compilation et
 finit **a deux endroits** — le panneau « Nouveautes » du launcher, et le corps
 de la release GitHub. Une seule source, deux destinations. Si elle manque,
-`pnpm run tag` refuse de partir.
+`npm run tag` refuse de partir.
 
 ## 2. Lancer la release
 
 ```
-pnpm run tag
+npm run tag
 ```
 
 Avant de pousser quoi que ce soit, il refuse :
@@ -102,7 +106,7 @@ n'apparait dans aucun journal.
 Si la CI est cassee ou indisponible :
 
 ```
-pnpm test && pnpm run typecheck && pnpm run dist
+npm test && npm run typecheck && npm run dist
 ```
 
 puis `github.com/Ewnaraa/nememu/releases/new` : tag `vX.Y.Z`, titre
