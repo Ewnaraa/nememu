@@ -108,6 +108,8 @@ hand to someone directly.
 
 ## Releasing
 
+Step by step, in French, in [docs/PUBLIER.md](docs/PUBLIER.md). In short:
+
 1. Bump `version` in `package.json` and add a matching `## x.y.z` section to
    `CHANGELOG.md` — the notes are generated from it, and a missing section is
    reported rather than silently skipped.
