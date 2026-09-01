@@ -15,17 +15,21 @@ les lignes qui comptent. Ça vit dans les commits.
 Une ligne par entrée. Ce qui change, pas pourquoi c'était cassé. Si une version
 n'apporte rien de visible, on l'écrit en une phrase plutôt que de la remplir.
 
-## 0.3.2
+## 0.3.3
 
 ### Corrigé
 
 - **Toute l'interface s'affichait en Times New Roman.** Elle utilise maintenant
   la police de Windows, partout et à l'identique d'une machine à l'autre.
+- Les animations du launcher ne marchaient qu'à moitié : le bouton Jouer ne
+  s'allumait pas et les changements d'état sautaient au lieu de glisser.
+
+## 0.3.2
 
 ### Changé
 
-- Le launcher est plus fluide : le fond bouge doucement, les changements d'état
-  se font en douceur au lieu de sauter.
+- Le launcher est plus vivant : le fond dérive lentement et le contenu se met en
+  place à l'ouverture.
 
 ## 0.3.1
 
