@@ -467,6 +467,6 @@ export enum IPCEvents {
   ACCOUNTS_CAPTURE = 'accounts_capture',
   ACCOUNTS_RENAME = 'accounts_rename',
   ACCOUNTS_FORGET = 'accounts_forget',
-  ACCOUNTS_GET_SECRETS = 'accounts_get_secrets',
+  ACCOUNTS_SECRETS_FOR_TAB = 'accounts_secrets_for_tab',
   ACCOUNTS_CHANGED = 'accounts_changed'
 }

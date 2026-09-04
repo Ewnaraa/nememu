@@ -83,6 +83,30 @@ function createStaticHandler(basePath: string, urlPrefix: string) {
   }
 }
 
+/**
+ * The store keys the renderer is allowed to touch.
+ *
+ * `storeGet`/`storeSet`/`storeDelete` exist for the two zustand stores that
+ * persist themselves, and nothing else. They used to accept any key at all,
+ * which mattered because these handlers answer the window that hosts the game
+ * iframe: reachable from the game's own bundle through `parent.nememu`.
+ *
+ * Reading was the smaller half. Writing was the problem — `settings` holds the
+ * proxy configuration, and the app dials whatever it finds there. A single
+ * `storeSet('settings', …)` from inside the game could therefore route the
+ * player's whole session through someone else's machine. Settings have their
+ * own handler, which validates; this door is now only the two stores.
+ */
+const RENDERER_STORE_KEYS = new Set(['nememu-tabs', 'nememu-teams'])
+
+function isRendererStoreKey(key: unknown): key is string {
+  if (typeof key !== 'string' || !RENDERER_STORE_KEYS.has(key)) {
+    logger.warn(`Refused a store access from the renderer for key ${JSON.stringify(key)}.`)
+    return false
+  }
+  return true
+}
+
 /** Settings are persisted on every keystroke; wait for the field to settle before re-dialling. */
 const PROXY_APPLY_DEBOUNCE = 800
 
@@ -502,17 +526,20 @@ export class Application {
     })
 
     ipcMain.handle(IPCEvents.STORE_GET, (_event, key: string) => {
+      if (!isRendererStoreKey(key)) return null
       const val = this._store.get(key)
       return val !== undefined ? JSON.stringify(val) : null
     })
 
     ipcMain.on(IPCEvents.STORE_SET, (_event, key: string, value: string) => {
+      if (!isRendererStoreKey(key)) return
       try {
         this._store.set(key, JSON.parse(value))
       } catch {}
     })
 
     ipcMain.on(IPCEvents.STORE_DELETE, (_event, key: string) => {
+      if (!isRendererStoreKey(key)) return
       this._store.delete(key)
     })
 
@@ -681,13 +708,49 @@ export class Application {
       this._broadcastAccounts()
     })
 
-    // The only path by which credentials leave the vault, and only towards the
-    // game window that is about to sign in with them.
-    ipcMain.handle(IPCEvents.ACCOUNTS_GET_SECRETS, (_event, id: string) => {
+    // Secrets are answered per *tab*, never per account id.
+    //
+    // The renderer used to ask for "the secrets of account X", with X free.
+    // That handler lives in the same window as the game: the game runs in an
+    // iframe served from this same origin, so `parent.nememu` is callable from
+    // Ankama's own bundle — and `listAccounts()` hands out every id. Three
+    // lines inside the game could therefore decrypt the credentials and device
+    // certificates of every saved account, not just the one it was signed in
+    // as. The encryption at rest was intact and entirely beside the point: the
+    // app decrypted on request for whoever asked.
+    //
+    // The tab's own secrets end up in the game's context anyway — that is what
+    // auto-login is. So the fix is not to hide them, it is to stop answering
+    // for accounts the caller has nothing to do with. The main process resolves
+    // the link itself, from the persisted tab list, and returns nothing when
+    // the tab has no account.
+    ipcMain.handle(IPCEvents.ACCOUNTS_SECRETS_FOR_TAB, (_event, tabId: string) => {
+      const id = this._accountIdForTab(tabId)
+      if (!id) return null
+
       const secrets = this._accounts.getSecrets(id)
       if (secrets) this._accounts.touch(id)
       return secrets
     })
+  }
+
+  /** The account linked to a tab, read from the persisted tab list. */
+  private _accountIdForTab(tabId: string): string | null {
+    if (typeof tabId !== 'string' || !tabId) return null
+
+    try {
+      const raw = this._store.get('nememu-tabs') as { state?: { tabs?: unknown } } | undefined
+      const tabs = raw?.state?.tabs
+      if (!Array.isArray(tabs)) return null
+
+      const tab = tabs.find((t) => (t as { id?: unknown })?.id === tabId) as
+        | { accountId?: unknown }
+        | undefined
+      return typeof tab?.accountId === 'string' && tab.accountId ? tab.accountId : null
+    } catch (err) {
+      logger.warn('Could not resolve the account linked to a tab', err)
+      return null
+    }
   }
 
   /**

@@ -188,8 +188,10 @@ const nememuApi = {
     await ipcRenderer.invoke(IPCEvents.ACCOUNTS_FORGET, id)
   },
 
-  getAccountSecrets: async (id: string): Promise<AccountSecrets | null> => {
-    return ipcRenderer.invoke(IPCEvents.ACCOUNTS_GET_SECRETS, id)
+  // Takes a tab, not an account. The main process resolves which account that
+  // tab is linked to, so this cannot be used to ask for someone else's.
+  getSecretsForTab: async (tabId: string): Promise<AccountSecrets | null> => {
+    return ipcRenderer.invoke(IPCEvents.ACCOUNTS_SECRETS_FOR_TAB, tabId)
   },
 
   onAccountsChanged: (cb: (accounts: SavedAccount[]) => void): (() => void) => {

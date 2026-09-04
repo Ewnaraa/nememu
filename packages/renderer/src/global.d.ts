@@ -47,7 +47,7 @@ interface NememuAPI {
   captureAccount(payload: AccountCapture): Promise<SavedAccount | null>
   renameAccount(id: string, label: string): Promise<SavedAccount | null>
   forgetAccount(id: string): Promise<void>
-  getAccountSecrets(id: string): Promise<AccountSecrets | null>
+  getSecretsForTab(tabId: string): Promise<AccountSecrets | null>
   onAccountsChanged(cb: (accounts: SavedAccount[]) => void): () => void
   logger: {
     info(...args: unknown[]): void

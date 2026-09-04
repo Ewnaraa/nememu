@@ -182,7 +182,9 @@ async function signInWithSavedAccount(gameWindow: DofusWindow, tabId: string) {
   if (!linkedAccountId) return
 
   try {
-    const secrets = await window.nememu.getAccountSecrets(linkedAccountId)
+    // The tab, not the account: the main process resolves the link itself and
+    // will only ever answer with the credentials of this tab's own account.
+    const secrets = await window.nememu.getSecretsForTab(tabId)
     if (!secrets) {
       window.nememu.logger.warn(`No stored credentials for the account linked to tab ${tabId}.`)
       return

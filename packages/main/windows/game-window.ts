@@ -115,7 +115,9 @@ export class GameWindow extends EventEmitter {
         sandbox: false,
         webSecurity: false,
         allowRunningInsecureContent: true,
-        webviewTag: true
+        // No <webview> anywhere in the renderer, so this was an attack surface
+        // switched on for nothing.
+        webviewTag: false
       }
     })
 
