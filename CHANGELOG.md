@@ -15,6 +15,15 @@ les lignes qui comptent. Ça vit dans les commits.
 Une ligne par entrée. Ce qui change, pas pourquoi c'était cassé. Si une version
 n'apporte rien de visible, on l'écrit en une phrase plutôt que de la remplir.
 
+## 0.3.5
+
+### Corrigé
+
+- **Aucune mise à jour de Nememu ne pouvait s'installer si « lancer le jeu
+  automatiquement » était coché** : le launcher filait dans le jeu avant d'avoir
+  pu la proposer. Il attend maintenant ta réponse quand une version est
+  disponible, et le dit à l'écran.
+
 ## 0.3.4
 
 ### Changé
