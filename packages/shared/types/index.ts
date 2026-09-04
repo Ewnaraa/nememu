@@ -87,6 +87,7 @@ export type AppUpdatePhase =
   | 'not-available'
   | 'downloading'
   | 'downloaded'
+  | 'installing'
   | 'error'
 
 export interface AppUpdateStatus {

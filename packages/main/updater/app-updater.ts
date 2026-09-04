@@ -99,7 +99,7 @@ export class AppUpdater {
 
       if (this._installRequested) {
         this._installRequested = false
-        autoUpdater.quitAndInstall(false, true)
+        this._install(info.version)
       }
     })
 
@@ -206,10 +206,40 @@ export class AppUpdater {
     return this._checking
   }
 
+  /**
+   * Run the installer and come back.
+   *
+   * Silently, and this is the whole point. `quitAndInstall(false, …)` hands the
+   * screen to the NSIS installer: the launcher vanishes, a grey progress window
+   * appears with a name and a bar of its own, and the update stops looking like
+   * something the client is doing and starts looking like something being
+   * installed on the machine. `true` runs the same installer with `/S`, so the
+   * only thing on screen is Nememu — which closes and comes back on the new
+   * version.
+   *
+   * The status goes out before the quit, with a beat to let the launcher paint
+   * it: without that, the last thing the player sees is a window disappearing
+   * with no explanation.
+   */
+  private _install(version?: string) {
+    this._setStatus({
+      phase: 'installing',
+      version,
+      percent: 100,
+      message: 'Installing the update — Nememu will restart.'
+    })
+
+    setTimeout(() => {
+      autoUpdater.quitAndInstall(true, true)
+    }, 600)
+  }
+
   /** Only ever called from an explicit user action in the updater screen. */
   installNow() {
+    if (this._status.phase === 'installing') return
+
     if (this._status.phase === 'downloaded') {
-      autoUpdater.quitAndInstall(false, true)
+      this._install(this._status.version)
       return
     }
 

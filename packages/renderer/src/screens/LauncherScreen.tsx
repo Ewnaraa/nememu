@@ -9,7 +9,7 @@ import { useSettings } from '@/App'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { ReleaseNotes } from '@/components/ReleaseNotes'
 
-type Status = 'checking' | 'app-downloading' | 'app-ready' | 'downloading' | 'done' | 'error'
+type Status = 'checking' | 'app-downloading' | 'app-ready' | 'app-installing' | 'downloading' | 'done' | 'error'
 
 const STEPS = [
   { title: 'Copying base files' },
@@ -36,6 +36,7 @@ function getHeadline(t: Translate, status: Status, installed: boolean): string {
   if (status === 'checking') return t('Checking updates')
   if (status === 'app-downloading') return t('Updating Nememu')
   if (status === 'app-ready') return t('App update ready')
+  if (status === 'app-installing') return t('Installing the update')
   if (status === 'done') return t('Ready to play')
   if (status === 'error') return installed ? t('Update failed') : t('Install failed')
   return installed ? t('Updating game') : t('Installing game')
@@ -45,6 +46,7 @@ function getSummary(t: Translate, status: Status, installed: boolean): string {
   if (status === 'checking') return t('Checking the desktop app first, then game files.')
   if (status === 'app-downloading') return t('Downloading the latest published release artifact.')
   if (status === 'app-ready') return t('Restart Nememu to install the downloaded app update.')
+  if (status === 'app-installing') return t('Nememu closes and reopens on the new version. Nothing to click.')
   if (status === 'done') return t('The game files are up to date.')
   if (status === 'error') return installed ? t('The existing install can still be opened.') : t('Retry the install.')
   return installed ? t('Applying only the required file updates.') : t('Downloading and patching the game files.')
@@ -104,7 +106,8 @@ function shouldRunGameUpdate(status: AppUpdateStatus): boolean {
 }
 
 function isActiveAppUpdate(status: AppUpdateStatus): boolean {
-  return status.phase === 'checking' || status.phase === 'downloading' || status.phase === 'downloaded'
+  return status.phase === 'checking' || status.phase === 'downloading' ||
+    status.phase === 'downloaded' || status.phase === 'installing'
 }
 
 const chromeButton: CSSProperties = {
@@ -217,7 +220,17 @@ export function LauncherScreen() {
     // the log cheerfully reported that everything had succeeded.
     //
     // The app update is optional and runs beside the game, not in front of it.
-    if (settledRef.current && (update.phase === 'checking' || update.phase === 'downloading')) {
+    // Only 'checking' is dropped once the game files are settled. It is the one
+    // phase that can arrive late from a check nobody is waiting for any more,
+    // and letting it through rewound a finished screen back to "Checking
+    // updates…" — the freeze this guard was written for.
+    //
+    // 'downloading' used to be dropped with it, and that was the bug: nothing
+    // downloads on its own, so a download push only ever follows a click on
+    // "Download and install". Swallowing it meant the one thing the player
+    // asked for was also the one thing the launcher refused to show — the
+    // window simply sat there until the installer took over the screen.
+    if (settledRef.current && update.phase === 'checking') {
       return
     }
 
@@ -239,6 +252,25 @@ export function LauncherScreen() {
       setStatus('app-ready')
       setMessage(update.message ?? 'App update ready.')
       setPercent(100)
+      return
+    }
+
+    if (update.phase === 'installing') {
+      setStatus('app-installing')
+      setMessage(update.message ?? 'Installing the update...')
+      setPercent(100)
+      return
+    }
+
+    // A failed app update, once the game is already playable, must give the
+    // screen back. Falling through to runUpdate does nothing here — it has
+    // already run — and the launcher would stay frozen on a progress bar for a
+    // download that is not happening any more.
+    if (update.phase === 'error' && settledRef.current) {
+      window.nememu.logger.warn('App update failed', update.error)
+      setStatus('done')
+      setPercent(100)
+      setMessage(update.message ?? '')
       return
     }
 
@@ -326,7 +358,8 @@ export function LauncherScreen() {
   // able to see it.
   const ready = status === 'done'
   const appUpdateWaiting =
-    appUpdate?.phase === 'available' || appUpdate?.phase === 'downloading' || appUpdate?.phase === 'downloaded'
+    appUpdate?.phase === 'available' || appUpdate?.phase === 'downloading' ||
+    appUpdate?.phase === 'downloaded' || appUpdate?.phase === 'installing'
   useEffect(() => {
     if (!ready || !isHydrated || !autoPlay || gameRunning || launchedRef.current) return
     if (appUpdateWaiting) return
@@ -596,7 +629,22 @@ export function LauncherScreen() {
               )}
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 16 }}>
-                {status === 'app-ready' ? (
+                {status === 'app-installing' ? (
+                  // Not a button: there is nothing to press, and the app is
+                  // about to close. It stands in the same place the Play button
+                  // occupies so the screen does not jump on the way out.
+                  <div
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                      padding: '13px 30px', borderRadius: 9,
+                      border: `1px solid ${colors.accentBorder}`, background: 'rgba(201,162,77,0.10)',
+                      color: colors.accentText, fontSize: 14, fontWeight: 700
+                    }}
+                  >
+                    <LoaderCircle size={16} style={{ animation: 'nememu-spin 1.2s linear infinite' }} />
+                    <span>{t('Installing...')}</span>
+                  </div>
+                ) : status === 'app-ready' ? (
                   <button
                     onClick={() => window.nememu.installAppUpdate()}
                     style={{

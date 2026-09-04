@@ -239,6 +239,13 @@ const fr: Dict = {
   'The game files are up to date.': 'Les fichiers du jeu sont à jour.',
   'The game files are still being prepared.': 'Les fichiers du jeu sont encore en préparation.',
   'Back to the game': 'Revenir au jeu',
+  'Installing the update': 'Installation de la mise à jour',
+  'Installing the update...': 'Installation de la mise à jour…',
+  'Installing the update — Nememu will restart.':
+    'Installation de la mise à jour — Nememu va redémarrer.',
+  'Installing...': 'Installation…',
+  'Nememu closes and reopens on the new version. Nothing to click.':
+    'Nememu se ferme et rouvre sur la nouvelle version. Rien à cliquer.',
   'Automatic launch is on hold until you decide.': "Le lancement automatique attend que tu choisisses.",
   'Launch the game automatically': 'Lancer le jeu automatiquement',
   'Open the launcher': 'Ouvrir le launcher',
