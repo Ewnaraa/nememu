@@ -15,6 +15,22 @@ les lignes qui comptent. Ça vit dans les commits.
 Une ligne par entrée. Ce qui change, pas pourquoi c'était cassé. Si une version
 n'apporte rien de visible, on l'écrit en une phrase plutôt que de la remplir.
 
+## 0.3.6
+
+### Changé
+
+- **La mise à jour s'installe sans fenêtre d'installateur.** Plus d'écran gris
+  « en cours d'installation » par-dessus le launcher : Nememu se ferme et rouvre
+  tout seul sur la nouvelle version.
+
+### Corrigé
+
+- **Le téléchargement d'une mise à jour ne s'affichait nulle part** : la barre
+  du launcher ne bougeait pas tant que l'installateur ne prenait pas l'écran.
+  Elle avance maintenant, avec le pourcentage.
+- Une mise à jour qui échoue rend la main au launcher au lieu de le laisser sur
+  une barre de progression morte.
+
 ## 0.3.5
 
 ### Corrigé
