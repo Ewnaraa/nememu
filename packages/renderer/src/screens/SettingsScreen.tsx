@@ -105,13 +105,21 @@ function Section({ title, children }: { title: string; children: React.ReactNode
  */
 function GeneralTab() {
   const t = useT()
-  const { language, window: win, proxy, game, setLanguage, setResolution, toggleAudioMute, toggleSoundOnFocus, setProxySettings, toggleAutoGroup, toggleAutoInvite, toggleNotifications, toggleFpsCounter } = useSettingsStore()
+  const { language, window: win, proxy, game, autoPlay, setLanguage, setResolution, toggleAudioMute, toggleSoundOnFocus, setProxySettings, toggleAutoGroup, toggleAutoInvite, toggleNotifications, toggleFpsCounter, setAutoPlay } = useSettingsStore()
 
   return (
     <>
       <Section title={t('Language')}>
         <Row label={t('Interface language')}>
           <Select value={language} onChange={(v) => setLanguage(v as Language)} options={LANGUAGES.map((l) => ({ value: l.value, label: l.name }))} />
+        </Row>
+      </Section>
+      {/* The same switch as the launcher's checkbox, reachable from inside the
+          game. It only lived on the launcher before, which meant turning it on
+          hid the one control that could turn it off. */}
+      <Section title={t('Startup')}>
+        <Row label={t('Launch the game automatically')} desc={t('Skip straight to the game when the launcher is ready')}>
+          <Toggle checked={autoPlay} onChange={setAutoPlay} />
         </Row>
       </Section>
       <Section title={t('Display')}>
@@ -335,7 +343,9 @@ function AboutTab() {
   const t = useT()
   return (
     <Section title="Nememu">
-      <Row label={t('Version')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>0.1.0</span></Row>
+      {/* Read from package.json at build time. It was the string "0.1.0",
+          written by hand and left behind at every release since. */}
+      <Row label={t('Version')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>{__APP_VERSION__}</span></Row>
       <Row label={t('Platform')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>{navigator.platform}</span></Row>
       <Row label={t('Engine')}><span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: colors.textMuted }}>Electron</span></Row>
       <div style={{ padding: '16px 0 8px', fontSize: 12, color: colors.textFaint, lineHeight: 1.6 }}>Desktop client for Dofus Touch.</div>
