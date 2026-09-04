@@ -317,13 +317,23 @@ export function LauncherScreen() {
   // It fires once per run: the launcher now survives the game, so without the
   // guard, closing the game would drop the player back on this screen and it
   // would immediately push them into a new one.
+  //
+  // An announced app update holds it. Skipping the launcher is a convenience;
+  // skipping past the only screen that offers the update turns the client into
+  // one that can never update itself again — which is exactly what happened:
+  // 0.3.4 was published, the log said "0.3.4 is available (running 0.3.3)",
+  // and the launcher jumped into the game 400 ms later, twice, with nobody
+  // able to see it.
   const ready = status === 'done'
+  const appUpdateWaiting =
+    appUpdate?.phase === 'available' || appUpdate?.phase === 'downloading' || appUpdate?.phase === 'downloaded'
   useEffect(() => {
     if (!ready || !isHydrated || !autoPlay || gameRunning || launchedRef.current) return
+    if (appUpdateWaiting) return
     launchedRef.current = true
     const id = window.setTimeout(launch, 400)
     return () => window.clearTimeout(id)
-  }, [ready, isHydrated, autoPlay, gameRunning])
+  }, [ready, isHydrated, autoPlay, gameRunning, appUpdateWaiting])
 
   const startDownload = async () => {
     gameUpdateStartedRef.current = false
@@ -568,6 +578,7 @@ export function LauncherScreen() {
                 <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 11, color: colors.textMuted, minWidth: 0 }}>
                     {t('Nememu {version} is available. Nothing is downloaded unless you ask.', { version: appUpdate.version ?? '' })}
+                    {autoPlay && ` ${t('Automatic launch is on hold until you decide.')}`}
                   </span>
                   <button
                     onClick={() => window.nememu.installAppUpdate()}

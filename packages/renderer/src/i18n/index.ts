@@ -239,6 +239,7 @@ const fr: Dict = {
   'The game files are up to date.': 'Les fichiers du jeu sont à jour.',
   'The game files are still being prepared.': 'Les fichiers du jeu sont encore en préparation.',
   'Back to the game': 'Revenir au jeu',
+  'Automatic launch is on hold until you decide.': "Le lancement automatique attend que tu choisisses.",
   'Launch the game automatically': 'Lancer le jeu automatiquement',
   'Open the launcher': 'Ouvrir le launcher',
   'Startup': 'Démarrage',
