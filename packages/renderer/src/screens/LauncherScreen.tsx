@@ -138,6 +138,7 @@ export function LauncherScreen() {
   const [currentStep, setCurrentStep] = useState(0)
   const [hasExistingInstall, setHasExistingInstall] = useState(false)
   const [appUpdate, setAppUpdate] = useState<AppUpdateStatus | null>(null)
+  const [gameRunning, setGameRunning] = useState(false)
   const didStartRef = useRef(false)
   const gameUpdateStartedRef = useRef(false)
   const installedRef = useRef(false)
@@ -157,9 +158,19 @@ export function LauncherScreen() {
   // and proxy settings once that window actually exists.
   useEffect(() => { if (!isHydrated) void loadSettings() }, [isHydrated, loadSettings])
 
+  // Whether a game window exists. The launcher is no longer destroyed when the
+  // game opens, so it can be looking at either situation: a game still to
+  // start, or one already running that the button should raise instead.
+  useEffect(() => {
+    void window.nememu.isGameRunning().then(setGameRunning)
+    return window.nememu.onGameRunningChanged(setGameRunning)
+  }, [])
+
+  // Opening the game and coming back to it are the same call: the main process
+  // creates the window the first time and focuses the existing one afterwards.
+  // There is no longer a reason to fire this only once — the launcher stays
+  // open behind the game, so its button has to keep working.
   const launch = () => {
-    if (launchedRef.current) return
-    launchedRef.current = true
     window.nememu.launchGameWindow()
   }
 
@@ -302,12 +313,17 @@ export function LauncherScreen() {
   // Auto-launch waits for the settings to arrive. Firing on the default before
   // hydration would ignore the saved preference on every launch, which is the
   // whole setting.
+  //
+  // It fires once per run: the launcher now survives the game, so without the
+  // guard, closing the game would drop the player back on this screen and it
+  // would immediately push them into a new one.
   const ready = status === 'done'
   useEffect(() => {
-    if (!ready || !isHydrated || !autoPlay) return
+    if (!ready || !isHydrated || !autoPlay || gameRunning || launchedRef.current) return
+    launchedRef.current = true
     const id = window.setTimeout(launch, 400)
     return () => window.clearTimeout(id)
-  }, [ready, isHydrated, autoPlay])
+  }, [ready, isHydrated, autoPlay, gameRunning])
 
   const startDownload = async () => {
     gameUpdateStartedRef.current = false
@@ -631,7 +647,7 @@ export function LauncherScreen() {
                     onMouseUp={(e) => { if (ready) e.currentTarget.style.transform = 'translateY(-1.5px)' }}
                   >
                     <Play size={16} fill="currentColor" />
-                    <span>{t('Play')}</span>
+                    <span>{gameRunning ? t('Back to the game') : t('Play')}</span>
                   </button>
                 )}
 
@@ -647,7 +663,7 @@ export function LauncherScreen() {
                     onChange={(e) => setAutoPlay(e.target.checked)}
                     style={{ accentColor: colors.accent, cursor: 'pointer', margin: 0 }}
                   />
-                  {t('Skip this screen next time')}
+                  {t('Launch the game automatically')}
                 </label>
               </div>
             </div>

@@ -26,6 +26,9 @@ interface NememuAPI {
   checkGameInstalled(): Promise<boolean>
   downloadGame(): Promise<void>
   launchGameWindow(): void
+  showLauncher(): void
+  isGameRunning(): Promise<boolean>
+  onGameRunningChanged(cb: (running: boolean) => void): () => void
   onAuthCallback(cb: (url: string) => void): () => void
   onSelectTab(cb: (index: number) => void): () => void
   onDownloadProgress(cb: (message: string, percent: number) => void): () => void

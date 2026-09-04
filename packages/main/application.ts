@@ -256,15 +256,17 @@ export class Application {
   }
 
   ensureWindow() {
-    if (this._launcherWindow) {
-      if (this._launcherWindow.isMinimized()) this._launcherWindow.restore()
-      this._launcherWindow.focus()
-      return
-    }
-
+    // The game comes first: now that the launcher survives the game, someone
+    // clicking the shortcut a second time while playing wants their game back,
+    // not the front door raised over it.
     if (this._gameWindow) {
       if (this._gameWindow.isMinimized()) this._gameWindow.restore()
       this._gameWindow.focus()
+      return
+    }
+
+    if (this._launcherWindow) {
+      this._launcherWindow.reveal()
       return
     }
 
@@ -396,8 +398,17 @@ export class Application {
 
     this._gameWindow.on('closed', () => {
       this._gameWindow = null
-      if (!this._launcherWindow) app.quit()
+      if (!this._launcherWindow) {
+        app.quit()
+        return
+      }
+      // Quitting the game comes back to the front door rather than leaving the
+      // app running with nothing on screen but a taskbar button.
+      this._launcherWindow.reveal()
+      this._launcherWindow.sendGameRunning(false)
     })
+
+    this._launcherWindow?.sendGameRunning(true)
   }
 
   private _createLauncherWindow() {
@@ -407,6 +418,23 @@ export class Application {
       this._launcherWindow = null
       if (!this._gameWindow) app.quit()
     })
+  }
+
+  /**
+   * Show the launcher, creating it again if it was closed.
+   *
+   * The launcher used to be destroyed the moment the game opened, which made
+   * the "skip this screen next time" checkbox a one-way door: the only control
+   * that could untick it lived on the screen it removed. It now stays open
+   * behind the game, and this is how the game window calls it back.
+   */
+  private _showLauncher() {
+    if (this._launcherWindow) {
+      this._launcherWindow.reveal()
+    } else {
+      this._createLauncherWindow()
+    }
+    this._launcherWindow?.sendGameRunning(!!this._gameWindow)
   }
 
   private _getRendererUrl(route: '/game' | '/launcher') {
@@ -425,10 +453,13 @@ export class Application {
       this._gameWindow.focus()
     }
 
+    // The launcher stays alive behind the game, the way a game launcher is
+    // expected to: it drops into the taskbar instead of being destroyed, and a
+    // click brings it back. Closing it while the game runs is allowed — the
+    // game keeps going, and the game window can call the launcher back.
     if (this._launcherWindow) {
-      const launcherWindow = this._launcherWindow
-      this._launcherWindow = null
-      launcherWindow.close()
+      this._launcherWindow.sendGameRunning(true)
+      this._launcherWindow.minimize()
     }
   }
 
@@ -624,6 +655,12 @@ export class Application {
     ipcMain.on(IPCEvents.OPEN_GAME_WINDOW, () => {
       this._openGameWindow()
     })
+
+    ipcMain.on(IPCEvents.SHOW_LAUNCHER, () => {
+      this._showLauncher()
+    })
+
+    ipcMain.handle(IPCEvents.IS_GAME_RUNNING, () => !!this._gameWindow)
 
     ipcMain.handle(IPCEvents.ACCOUNTS_LIST, () => this._accounts.list())
 

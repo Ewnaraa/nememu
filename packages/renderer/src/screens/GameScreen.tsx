@@ -753,15 +753,25 @@ export function GameScreen() {
           WebkitAppRegion: 'drag',
         } as React.CSSProperties}
       >
-        {/* The mark sits in the drag region, not in the tab strip: it is the
-            one part of the bar that is never a control, and it gives the
-            window an identity in a screenshot. */}
-        <div
-          title={`Nememu ${__APP_VERSION__}`}
-          style={{ display: 'flex', alignItems: 'center', padding: '0 9px 0 10px', flexShrink: 0 }}
+        {/* The mark is the way back to the launcher.
+            It used to be decoration — the one part of the bar that was never a
+            control. But the launcher now stays open behind the game and can be
+            closed like any window, so something in the game has to be able to
+            call it back, and the logo is where a player already looks for
+            "home". It steps out of the drag region for that. */}
+        <button
+          onClick={() => window.nememu.showLauncher()}
+          title={t('Open the launcher')}
+          style={{
+            display: 'flex', alignItems: 'center', padding: '0 9px 0 10px', flexShrink: 0,
+            height: '100%', background: 'none', border: 'none', cursor: 'pointer',
+            WebkitAppRegion: 'no-drag'
+          } as React.CSSProperties}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'none' }}
         >
           <img src={logoImg} alt="" style={{ width: 15, height: 15, opacity: 0.9 }} />
-        </div>
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', height: '100%', overflow: 'auto', WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
           {tabs.map((tab) => (
             <button

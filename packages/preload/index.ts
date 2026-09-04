@@ -96,6 +96,20 @@ const nememuApi = {
     ipcRenderer.send(IPCEvents.OPEN_GAME_WINDOW)
   },
 
+  showLauncher: () => {
+    ipcRenderer.send(IPCEvents.SHOW_LAUNCHER)
+  },
+
+  isGameRunning: async (): Promise<boolean> => {
+    return ipcRenderer.invoke(IPCEvents.IS_GAME_RUNNING)
+  },
+
+  onGameRunningChanged: (cb: (running: boolean) => void): (() => void) => {
+    const listener = (_: IpcRendererEvent, running: boolean) => cb(running)
+    ipcRenderer.on(IPCEvents.GAME_RUNNING_CHANGED, listener)
+    return () => { ipcRenderer.removeListener(IPCEvents.GAME_RUNNING_CHANGED, listener) }
+  },
+
   onAuthCallback: (cb: (url: string) => void): (() => void) => {
     const listener = (_: IpcRendererEvent, url: string) => cb(url)
     ipcRenderer.on(IPCEvents.AUTH_CALLBACK, listener)
