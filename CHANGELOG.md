@@ -15,6 +15,17 @@ les lignes qui comptent. Ça vit dans les commits.
 Une ligne par entrée. Ce qui change, pas pourquoi c'était cassé. Si une version
 n'apporte rien de visible, on l'écrit en une phrase plutôt que de la remplir.
 
+## 0.3.7
+
+### Sécurité
+
+- **Le code du jeu pouvait lire les identifiants de tous tes comptes
+  enregistrés**, pas seulement celui de l'onglet en cours. Nememu ne répond plus
+  que pour le compte rattaché à l'onglet qui demande.
+- **Le jeu pouvait aussi réécrire tes réglages**, dont le proxy — de quoi faire
+  passer toute ta connexion par ailleurs. Il n'a plus accès qu'à la liste des
+  onglets et aux équipes.
+
 ## 0.3.6
 
 ### Changé
