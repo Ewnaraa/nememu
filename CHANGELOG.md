@@ -15,6 +15,22 @@ les lignes qui comptent. Ça vit dans les commits.
 Une ligne par entrée. Ce qui change, pas pourquoi c'était cassé. Si une version
 n'apporte rien de visible, on l'écrit en une phrase plutôt que de la remplir.
 
+## 0.3.4
+
+### Changé
+
+- **Le launcher reste ouvert.** Il se réduit dans la barre des tâches quand le
+  jeu démarre, au lieu de disparaître : un clic dessus et il revient.
+- Le logo Nememu, en haut à gauche de la fenêtre de jeu, rouvre le launcher.
+- Fermer le jeu ramène au launcher au lieu de quitter Nememu.
+
+### Corrigé
+
+- **« Lancer le jeu automatiquement » ne pouvait plus être décoché** : la case
+  ne vivait que sur l'écran qu'elle faisait disparaître. Elle est maintenant
+  aussi dans Réglages > Démarrage.
+- La version affichée dans Réglages > À propos était restée bloquée sur 0.1.0.
+
 ## 0.3.3
 
 ### Corrigé
